@@ -6,8 +6,6 @@ function removeButton() {
     button.remove();
     button = null;
   }
-
-  removePopup();
 }
 
 function removePopup() {
@@ -119,4 +117,11 @@ document.addEventListener("mouseup", (e) => {
     document.body.appendChild(button);
 });
 
-
+document.addEventListener("selectionchange", () => {
+    const selection = window.getSelection();
+  
+    if (!selection || selection.toString().trim() === "") {
+      removeButton();
+      removePopup();
+    }
+  });
