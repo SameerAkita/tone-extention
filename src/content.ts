@@ -7,6 +7,27 @@ function removeButton() {
   }
 }
 
+function isEditableSelection(): boolean {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return false;
+
+    const range = selection.getRangeAt(0);
+    const container = range.startContainer;
+
+    const element =
+        container.nodeType === Node.TEXT_NODE
+        ? container.parentElement
+        : (container as HTMLElement);
+
+    if (!element) return false;
+
+    const editableParent = element.closest(
+        "textarea, input, [contenteditable='true']"
+    )
+
+    return editableParent !== null;
+}
+
 document.addEventListener("mouseup", (e) => {
     if (button && e.target === button) {
         return;
@@ -16,6 +37,11 @@ document.addEventListener("mouseup", (e) => {
     const text = selection?.toString().trim();
 
     if (!text) {
+        removeButton();
+        return;
+    }
+
+    if (!isEditableSelection()) {
         removeButton();
         return;
     }
