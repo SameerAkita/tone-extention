@@ -1,6 +1,8 @@
 let button: HTMLButtonElement | null = null;
 let popup: HTMLDivElement | null = null;
 
+let popupOpen = false;
+
 function removeButton() {
   if (button) {
     button.remove();
@@ -19,6 +21,10 @@ function showPopup(x: number, y: number) {
     removePopup();
 
     popup = document.createElement("div");
+
+    popup.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+    })
 
     popup.innerText = "Rewrite will appear here soon...";
 
@@ -60,9 +66,9 @@ function isEditableSelection(): boolean {
 }
 
 document.addEventListener("mouseup", (e) => {
-    if (button && e.target === button) {
-        return;
-        }
+    if (popupOpen) return;
+
+    if (button && e.target === button) return;
 
     const selection = window.getSelection();
     const text = selection?.toString().trim();
@@ -108,6 +114,8 @@ document.addEventListener("mouseup", (e) => {
         
         removeButton()
 
+        popupOpen = true;
+
         showPopup(
             rect.left + window.scrollX,
             rect.top + window.scrollY
@@ -123,5 +131,6 @@ document.addEventListener("selectionchange", () => {
     if (!selection || selection.toString().trim() === "") {
       removeButton();
       removePopup();
+      popupOpen = false;
     }
   });
