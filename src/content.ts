@@ -17,6 +17,66 @@ function removePopup() {
     }
 }
 
+function showToneButton() {
+    if (popupOpen) return;
+
+    const selection = window.getSelection();
+    const text = selection?.toString().trim();
+
+    if (!text) {
+        removeButton();
+        return;
+    }
+
+    if (!isEditableSelection()) {
+        removeButton();
+        return;
+    }
+
+    const range = selection!.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+
+    removeButton();
+
+    button = document.createElement("button");
+    button.innerText = "Tone";
+
+    button.style.position = "absolute";
+    button.style.left = `${rect.right + window.scrollX}px`;
+    button.style.top = `${rect.bottom + window.scrollY}px`;
+
+    button.style.padding = "6px 10px";
+    button.style.borderRadius = "8px";
+    button.style.border = "none";
+    button.style.background = "black";
+    button.style.color = "white";
+    button.style.cursor = "pointer";
+    button.style.zIndex = "999999";
+
+    button.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+    });
+
+    button.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    
+        console.log("Tone button clicked!");
+    
+        const rect = button!.getBoundingClientRect();
+    
+        removeButton();
+        popupOpen = true;
+    
+        showPopup(
+            rect.left + window.scrollX,
+            rect.top + window.scrollY
+        );
+    });
+    
+    document.body.appendChild(button);
+}
+
 function showPopup(x: number, y: number) {
     removePopup();
 
@@ -65,64 +125,8 @@ function isEditableSelection(): boolean {
     return editableParent !== null;
 }
 
-document.addEventListener("mouseup", (e) => {
-    if (popupOpen) return;
-
-    if (button && e.target === button) return;
-
-    const selection = window.getSelection();
-    const text = selection?.toString().trim();
-
-    if (!text) {
-        removeButton();
-        return;
-    }
-
-    if (!isEditableSelection()) {
-        removeButton();
-        return;
-    }
-
-    const range = selection!.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-
-    removeButton();
-
-    button = document.createElement("button");
-    button.innerText = "Tone";
-
-    button.style.position = "absolute";
-    button.style.left = `${rect.right + window.scrollX}px`;
-    button.style.top = `${rect.bottom + window.scrollY}px`;
-
-    button.style.padding = "6px 10px";
-    button.style.borderRadius = "8px";
-    button.style.border = "none";
-    button.style.background = "black";
-    button.style.color = "white";
-    button.style.cursor = "pointer";
-    button.style.zIndex = "999999";
-
-    button.addEventListener("mousedown", (e) => {
-        e.preventDefault();
-    });
-
-    button.onclick = () => {
-        console.log("Tone button clicked");
-
-        const rect = button!.getBoundingClientRect();
-        
-        removeButton()
-
-        popupOpen = true;
-
-        showPopup(
-            rect.left + window.scrollX,
-            rect.top + window.scrollY
-        );
-    };
-
-    document.body.appendChild(button);
+document.addEventListener("mouseup", () => {
+    showToneButton();
 });
 
 document.addEventListener("selectionchange", () => {
