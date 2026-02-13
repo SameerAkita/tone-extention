@@ -134,3 +134,12 @@ document.addEventListener("selectionchange", () => {
       popupOpen = false;
     }
   });
+
+
+// removes everything on resize
+// TODO: dynamically change position on resize
+window.addEventListener("resize", () => {
+    removeButton();
+    removePopup();
+    popupOpen = false;
+})
