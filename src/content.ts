@@ -136,7 +136,10 @@ document.addEventListener("selectionchange", () => {
       removeButton();
       removePopup();
       popupOpen = false;
+      return;
     }
+
+    showToneButton();
   });
 
 
