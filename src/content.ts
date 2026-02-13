@@ -1,10 +1,43 @@
 let button: HTMLButtonElement | null = null;
+let popup: HTMLDivElement | null = null;
 
 function removeButton() {
   if (button) {
     button.remove();
     button = null;
   }
+
+  removePopup();
+}
+
+function removePopup() {
+    if (popup) {
+        popup.remove();
+        popup = null;
+    }
+}
+
+function showPopup(x: number, y: number) {
+    removePopup();
+
+    popup = document.createElement("div");
+
+    popup.innerText = "Rewrite will appear here soon...";
+
+    popup.style.position = "absolute";
+    popup.style.left = `${x}px`;
+    popup.style.top = `${y}px`;
+
+    popup.style.padding = "10px 12px";
+    popup.style.borderRadius = "12px";
+    popup.style.background = "white";
+    popup.style.border = "1px solid #ddd";
+    popup.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+    popup.style.zIndex = "999999";
+    popup.style.fontSize = "14px";
+    popup.style.maxWidth = "250px";
+
+    document.body.appendChild(popup);
 }
 
 function isEditableSelection(): boolean {
@@ -71,9 +104,19 @@ document.addEventListener("mouseup", (e) => {
     });
 
     button.onclick = () => {
-        alert("Tone button clicked!");
-        console.log("Tone button clicked!")
+        console.log("Tone button clicked");
+
+        const rect = button!.getBoundingClientRect();
+        
+        removeButton()
+
+        showPopup(
+            rect.left + window.scrollX,
+            rect.top + window.scrollY
+        );
     };
 
     document.body.appendChild(button);
 });
+
+
