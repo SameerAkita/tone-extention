@@ -1,3 +1,5 @@
+import { replaceSelection } from "./replace";
+
 let popup: HTMLDivElement | null = null;
 
 export function removePopup() {
@@ -11,8 +13,6 @@ export function showPopup(x: number, y: number) {
   removePopup();
 
   popup = document.createElement("div");
-
-  popup.innerText = "Rewrite will appear here soon...";
 
   popup.style.position = "absolute";
   popup.style.left = `${x}px`;
@@ -32,6 +32,29 @@ export function showPopup(x: number, y: number) {
     e.preventDefault();
     e.stopPropagation();
   });
+
+  const preview = document.createElement("div");
+  preview.innerText = "Replace text..."
+  preview.style.marginBottom = "10px";
+
+  const apply = document.createElement("button");
+  apply.innerText = "Apply Rewrite";
+
+  apply.style.padding = "6px 10px";
+  apply.style.borderRadius = "8px";
+  apply.style.border = "none";
+  apply.style.cursor = "pointer";
+  apply.style.background = "black";
+  apply.style.color = "white";
+
+  apply.addEventListener("mouseup", () => {
+    replaceSelection("Business rewrite goes here");
+    removePopup;
+    
+  })
+
+  popup.appendChild(preview);
+  popup.appendChild(apply);
 
   document.body.appendChild(popup);
 

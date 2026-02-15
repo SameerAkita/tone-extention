@@ -7,7 +7,6 @@ import {
 } from "./selection";
 
 let popupOpen = false;
-let isMouseSelecting = false;
 
 function updateToneButton() {
   if (popupOpen) return;
@@ -48,19 +47,8 @@ function updateToneButton() {
 }
 
 export function setupTone() {
-  // mouse selection
-  document.addEventListener("mousedown", () => {
-    isMouseSelecting = true;
-  })
-  document.addEventListener("mouseup", () => {
-    isMouseSelecting = false;
-    updateToneButton();
-  });
-
-  // ctrl+a or keyboard selection
   document.addEventListener("selectionchange", () => {
-    if (isMouseSelecting) return;
-    
+
     const text = getSelectionText();
 
     if (!text) {
@@ -68,6 +56,11 @@ export function setupTone() {
       removePopup();
       popupOpen = false;
       return;
+    }
+
+    if (popupOpen) {
+        removePopup();
+        popupOpen = false;
     }
 
     if (!popupOpen) {
