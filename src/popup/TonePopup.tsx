@@ -24,7 +24,7 @@ export default function TonePopup({
     return (
         <div
             style={{
-                width: 280,
+                width: 200,
                 padding: 12,
                 background: "white",
                 borderRadius: 12,
