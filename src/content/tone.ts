@@ -1,83 +1,13 @@
-import { createToneButton, removeButton, getButtonRect } from "./button";
-import { showPopup, removePopup } from "./mountPopup";
-import {
-  getSelectionText,
-  getSelectionRect,
-  isEditableSelection,
-} from "./selection";
-import { saveSelectionRange } from "./selectionStore";
-
-let popupOpen = false;
-
-function updateToneButton() {
-  if (popupOpen) return;
-
-  const text = getSelectionText();
-
-  if (!text) {
-    removeButton();
-    return;
-  }
-
-  if (!isEditableSelection()) {
-    removeButton();
-    return;
-  }
-
-  const rect = getSelectionRect();
-  if (!rect) return;
-
-  createToneButton(
-    rect.right + window.scrollX,
-    rect.bottom + window.scrollY,
-    () => {
-      saveSelectionRange();
-
-      const buttonRect = getButtonRect();
-      if (!buttonRect) return;
-
-      removeButton();
-      popupOpen = true;
-
-      showPopup(
-        buttonRect.left + window.scrollX,
-        buttonRect.top + window.scrollY,
-        "hello",
-        () => {
-            popupOpen = false;
-            removePopup();
-        }
-      );
-    }
-  );
-}
+import { getActiveField } from "./activeField";
+import { showToneButton } from "./button";
 
 export function setupTone() {
-  document.addEventListener("selectionchange", () => {
+    setInterval(() => {
+        const field = getActiveField();
+        if (!field) return;
 
-    const text = getSelectionText();
-
-    if (!text) {
-      removeButton();
-      removePopup();
-      popupOpen = false;
-      return;
-    }
-
-    if (popupOpen) {
-        removePopup();
-        popupOpen = false;
-    }
-
-    if (!popupOpen) {
-      updateToneButton();
-    }
-  });
-
-  // reset on resize
-  window.addEventListener("resize", () => {
-    removeButton();
-    removePopup();
-    popupOpen = false;
-  });
+        showToneButton(field, () => {
+            console.log("tone button clicked")
+        })
+    }, 500);
 }
