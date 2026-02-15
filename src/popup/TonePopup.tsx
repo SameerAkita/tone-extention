@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { rewriteText } from "../api/rewrite";
+import { replace } from "../content/replace";
 
 export default function TonePopup({
     selectedText,
@@ -19,6 +20,13 @@ export default function TonePopup({
 
         setResult(rewritten);
         setLoading(false);
+    }
+
+    function handleApply() {
+        if (!result) return;
+
+        replace(result);
+        onClose();
     }
 
     return (
@@ -53,10 +61,10 @@ export default function TonePopup({
             </button>
 
             {result && (
-                <div style={{ marginTop: 10 }}>
-                    <strong>Result:</strong>
-                    <p>{result}</p>
-                </div>
+                <>
+                    <p style={{ marginTop: 10 }}>{result}</p>
+                    <button onClick={handleApply}>Apply</button>
+                </>
             )}
 
             <button onClick={onClose}>Close</button>
