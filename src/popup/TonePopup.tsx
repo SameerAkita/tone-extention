@@ -66,8 +66,6 @@ export default function TonePopup({
                     <button onClick={handleApply}>Apply</button>
                 </>
             )}
-
-            <button onClick={onClose}>Close</button>
         </div>
     )
 }
