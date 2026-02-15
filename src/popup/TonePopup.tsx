@@ -1,7 +1,65 @@
-export default function TonePopup() {
+import { useState } from "react";
+import { rewriteText } from "../api/rewrite";
+
+export default function TonePopup({
+    selectedText,
+    onClose,
+}: {
+    selectedText: string;
+    onClose: () => void;
+}) {
+    const [tone, setTone] = useState(50);
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState("");
+
+    async function handleRewrite() {
+        setLoading(true);
+
+        const rewritten = await rewriteText(selectedText, tone);
+
+        setResult(rewritten);
+        setLoading(false);
+    }
+
     return (
-        <div>
-            Hello
+        <div
+            style={{
+                width: 280,
+                padding: 12,
+                background: "white",
+                borderRadius: 12,
+                border: "1px solid #ddd",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                fontSize: 14,
+            }}
+        >
+            <div style={{ marginBottom: 8 }}>
+                <strong>Tone Rewrite</strong>
+            </div>
+
+            <input 
+                type="range"
+                min={0}
+                max={100}
+                value={tone}
+                onChange={(e) => setTone(Number(e.target.value))}
+            />
+
+            <button
+                onClick={handleRewrite}
+                style={{ marginTop: 10 }}
+            >
+                {loading ? "Rewriting..." : "Rewrite"}
+            </button>
+
+            {result && (
+                <div style={{ marginTop: 10 }}>
+                    <strong>Result:</strong>
+                    <p>{result}</p>
+                </div>
+            )}
+
+            <button onClick={onClose}>Close</button>
         </div>
     )
 }

@@ -41,6 +41,11 @@ function updateToneButton() {
       showPopup(
         buttonRect.left + window.scrollX,
         buttonRect.top + window.scrollY,
+        "hello",
+        () => {
+            popupOpen = false;
+            removePopup();
+        }
       );
     }
   );

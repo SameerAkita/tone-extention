@@ -1,5 +1,3 @@
-import { replaceSelection } from "./replace";
-import React from "react";
 import ReactDOM from "react-dom/client"
 import TonePopup from "../popup/TonePopup";
 
