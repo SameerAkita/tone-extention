@@ -1,5 +1,5 @@
 import { createToneButton, removeButton, getButtonRect } from "./button";
-import { showPopup, removePopup } from "./popup";
+import { showPopup, removePopup } from "./mountPopup";
 import {
   getSelectionText,
   getSelectionRect,
@@ -40,7 +40,7 @@ function updateToneButton() {
 
       showPopup(
         buttonRect.left + window.scrollX,
-        buttonRect.top + window.scrollY
+        buttonRect.top + window.scrollY,
       );
     }
   );
