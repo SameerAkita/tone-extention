@@ -5,6 +5,7 @@ import {
   getSelectionRect,
   isEditableSelection,
 } from "./selection";
+import { saveSelectionRange } from "./selectionStore";
 
 let popupOpen = false;
 
@@ -30,7 +31,7 @@ function updateToneButton() {
     rect.right + window.scrollX,
     rect.bottom + window.scrollY,
     () => {
-      console.log("Tone button clicked!");
+      saveSelectionRange();
 
       const buttonRect = getButtonRect();
       if (!buttonRect) return;
