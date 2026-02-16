@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
 import { getActiveTextbox, getTextboxRect } from "../content/textbox";
+import ToneButton from "./ToneButton";
 
 export default function Overlay() {
     const [popupOpen, setPopupOpen] = useState(false);
-    const [activeBox, setActiveBox] = useState<HTMLElement | null>(null);
+    // const [activeBox, setActiveBox] = useState<HTMLElement | null>(null);
     const [buttonPos, setButtonPos] = useState<{ x: number; y: number } | null>(null);
 
     useEffect(() => {
@@ -12,14 +13,14 @@ export default function Overlay() {
 
             if (!box) {
                 setPopupOpen(false);
-                setActiveBox(null);
+                // setActiveBox(null);
                 setButtonPos(null);
                 return;
             }
 
             const rect = getTextboxRect(box);
 
-            setActiveBox(box);
+            // setActiveBox(box);
             setButtonPos({
                 x: rect.right + window.scrollX - 50,
                 y: rect.bottom + window.scrollY - 35,
@@ -37,7 +38,19 @@ export default function Overlay() {
 
     return (
         <>
-            hi
+            {buttonPos && (
+                <ToneButton 
+                    x={buttonPos.x}
+                    y={buttonPos.y}
+                    onClick={() => setPopupOpen(!popupOpen)}
+                />
+            )}
+
+            {popupOpen && (
+                <div>
+                    popup
+                </div>
+            )}
         </>
     )
 }
