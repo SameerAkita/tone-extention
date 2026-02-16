@@ -26,7 +26,7 @@ export default function TonePopup({
         <div
             style={{
                 position: "absolute",
-                left: x,
+                left: x - 300,
                 top: y - 240,
                 width: 300,
                 padding: 14,
@@ -38,24 +38,30 @@ export default function TonePopup({
             }}
         >
             <div style={{ fontWeight: "bold" }}>Tone Rewrite</div>
-            <div style={{ marginTop: 10 }}>
-                Tone Level: <b>{tone}</b>
+            <div style={{ display: "flex", gap: 8 }}>
+                <ToneLevelButton
+                    label="Casual"
+                    active={tone==="casual"}
+                    onClick={() => onToneSelect("casual")}
+                />
+                <ToneLevelButton
+                    label="Business"
+                    active={tone==="business"}
+                    onClick={() => onToneSelect("business")}
+                />
+                <ToneLevelButton
+                    label="Formal"
+                    active={tone==="formal"}
+                    onClick={() => onToneSelect("formal")}
+                />
             </div>
-            <input 
-                style={{ width: "100%" }}
-                type="range"
-                min={0}
-                max={10}
-                value={tone}
-                onChange={(e) => onToneSelect()}
-            />
             <div
                 style={{
                     marginTop: 12,
                     padding: 10,
                     borderRadius: 10,
                     background: "#f7f7f7",
-                    minHeight: 70,
+                    minHeight: 80,
                     fontSize: 13,
                 }}
             >
