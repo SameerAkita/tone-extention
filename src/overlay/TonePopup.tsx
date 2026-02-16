@@ -7,7 +7,7 @@ type Props = {
     loading: boolean;
     rewrittenText: string | null;
 
-    onToneSelect: (t: ToneLevel) => void;
+    onToneSelect: (tone: ToneLevel) => void;
     onApply: () => void;
     onClose: () => void;
 };
