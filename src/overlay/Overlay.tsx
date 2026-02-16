@@ -21,7 +21,11 @@ export default function Overlay() {
     const [buttonPos, setButtonPos] = useState<{ x: number; y: number } | null>(null);
 
     useEffect(() => {
-        function handleFocus() {
+        function handleFocus(e: Event) {
+            const target = e.target as HTMLElement;
+
+            if (target.closest("[data-tone-popup]")) return;
+
             const box = getActiveTextbox();
 
             if (!box) {
@@ -48,11 +52,9 @@ export default function Overlay() {
         }
 
         document.addEventListener("focusin", handleFocus);
-        document.addEventListener("click", handleFocus);
 
         return () => {
             document.removeEventListener("focusin", handleFocus);
-            document.removeEventListener("click", handleFocus);
         };
     }, [cachedText])
 

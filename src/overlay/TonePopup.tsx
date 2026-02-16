@@ -24,6 +24,7 @@ export default function TonePopup({
 }: Props) {
     return (
         <div
+            data-tone-popup="true"
             style={{
                 position: "absolute",
                 left: x - 300,
