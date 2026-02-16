@@ -16,6 +16,7 @@ export function setupTone() {
                 rect.right - 270,
                 rect.bottom - 220,
                 text,
+                field,
             )
         })
     }, 500);

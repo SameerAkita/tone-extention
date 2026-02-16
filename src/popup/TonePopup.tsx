@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { rewriteText } from "../api/rewrite";
-import { replace } from "../content/replace";
+import { removePopup } from "../content/mountPopup";
+import { replaceText } from "../content/replace";
 
 export default function TonePopup({
     selectedText,
-    onClose,
+    field,
 }: {
     selectedText: string;
-    onClose: () => void;
+    field: HTMLElement;
 }) {
     const [tone, setTone] = useState(50);
     const [loading, setLoading] = useState(false);
@@ -25,8 +26,8 @@ export default function TonePopup({
     function handleApply() {
         if (!result) return;
 
-        replace(result);
-        onClose();
+        replaceText(field, result);
+        removePopup();
     }
 
     return (
