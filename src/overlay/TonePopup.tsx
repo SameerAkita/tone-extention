@@ -1,11 +1,13 @@
+import type { ToneLevel } from "./Overlay";
+
 type Props = {
     x: number;
     y: number;
-    tone: number;
+    tone: ToneLevel;
     loading: boolean;
     rewrittenText: string | null;
 
-    onToneChange: (v: number) => void;
+    onToneSelect: (t: ToneLevel) => void;
     onApply: () => void;
     onClose: () => void;
 };
@@ -16,7 +18,7 @@ export default function TonePopup({
     tone,
     loading,
     rewrittenText,
-    onToneChange,
+    onToneSelect,
     onApply,
     onClose,
 }: Props) {
@@ -45,7 +47,7 @@ export default function TonePopup({
                 min={0}
                 max={10}
                 value={tone}
-                onChange={(e) => onToneChange(Number(e.target.value))}
+                onChange={(e) => onToneSelect()}
             />
             <div
                 style={{
