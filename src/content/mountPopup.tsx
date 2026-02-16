@@ -15,7 +15,6 @@ export function showPopup(
   x: number, 
   y: number,
   selectedText: string,
-  onClose: () => void,
 ) {
   if (!popup) {
     popup = document.createElement("div");
@@ -32,7 +31,7 @@ export function showPopup(
   root!.render(
     <TonePopup 
       selectedText={selectedText}
-      onClose={onClose}
+      onClose={removePopup}
     />
   );
 

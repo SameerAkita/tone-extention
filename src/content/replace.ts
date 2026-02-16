@@ -1,15 +1,13 @@
-import { getSavedRange, clearSavedRange } from "./selectionStore";
 
-export function replace(newText: string) {
-    const range = getSavedRange();
-    if (!range) return;
+export function replaceText(field: HTMLElement, newText: string) {
+    if (field instanceof HTMLTextAreaElement || field instanceof HTMLInputElement) {
+        field.value = newText;
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+        return;
+    }
 
-    range.deleteContents();
-
-    range.insertNode(document.createTextNode(newText));
-
-    clearSavedRange();
-
-    const selection = window.getSelection();
-    selection?.removeAllRanges();
+    if (field.isContentEditable) {
+        field.innerText = newText;
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+    }
 }
