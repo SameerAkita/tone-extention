@@ -7,7 +7,7 @@ export default defineConfig({
     outDir: "dist",
     rollupOptions: {
       input: {
-        content: "src/content/content.ts"
+        content: "src/content/content.tsx"
       },
       output: {
         entryFileNames: "[name].js"
