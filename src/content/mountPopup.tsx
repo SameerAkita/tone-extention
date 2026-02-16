@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client"
-import TonePopup from "../popup/TonePopup";
+import TonePopup from "../overlay/TonePopup";
 
 let popup: HTMLDivElement | null = null;
 let root: ReactDOM.Root | null = null;
