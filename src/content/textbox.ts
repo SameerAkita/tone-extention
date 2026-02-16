@@ -12,3 +12,10 @@ export function getActiveTextbox(): HTMLElement | null {
 export function getTextboxRect(el: HTMLElement) {
     return el.getBoundingClientRect();
 }
+
+export function getTextboxText(el: HTMLElement): string {
+    if (el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) return el.value;
+
+    return el.innerText;
+}
+
