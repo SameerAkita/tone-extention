@@ -19,5 +19,5 @@ export function setupTone() {
                 field,
             )
         })
-    }, 500);
+    }, 250);
 }
