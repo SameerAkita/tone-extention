@@ -8,20 +8,56 @@ export type ToneLevel = "casual" | "business" | "formal";
 
 export default function Overlay() {
     const [popupOpen, setPopupOpen] = useState(false);
-    const [activeBox, setActiveBox] = useState<HTMLElement | null>(null);
     const [tone, setTone] = useState<ToneLevel>("business");
-
-    const [inputText, setInputText] = useState("");
-    const [cachedText, setCachedText] = useState("");
     const [rewrittenText, setRewrittenText] = useState<string | null>(null);
-
     const [loading, setLoading] = useState(false);
-
     const [buttonPos, setButtonPos] = useState<{ x: number; y: number } | null>(null);
 
     const activeBoxRef = useRef<HTMLElement | null>(null);
     const inputTextRef = useRef("");
     const cachedTextRef = useRef("");
+
+    // helper
+    function updateButtonPosition(box: HTMLElement) {
+        const rect = box.getBoundingClientRect();
+
+        setButtonPos({
+            x: rect.right + window.scrollX - 50,
+            y: rect.bottom + window.scrollY - 35,
+        })
+    }
+
+    // detect textbox focus
+    useEffect(() => {
+        function handleFocus(e: Event) {
+            const target = e.target as HTMLElement;
+
+            // ignore clicks inside popup
+            if (target.closest("[data-tone-popup]")) return;
+
+            const box = getActiveTextbox();
+
+            if (!box) {
+                activeBoxRef.current = null;
+                setPopupOpen(false);
+                setButtonPos(null);
+                return;
+            }
+
+            activeBoxRef.current = box;
+
+            const text = getTextboxText(box);
+            inputTextRef.current = text;
+
+            updateButtonPosition(box);
+        }
+
+        document.addEventListener("focusin", handleFocus);
+
+        return () => {
+            document.removeEventListener("focusin", handleFocus);
+        };
+    }, []);
 
     // Typing listener
     useEffect(() => {
@@ -32,91 +68,51 @@ export default function Overlay() {
             inputTextRef.current = text;
         }
 
-        activeBoxRef.current.addEventListener("input", handleTyping);
+        activeBoxRef.current.addEventListener("input", handleTyping, true);
 
         return () => {
-            activeBoxRef.current?.addEventListener("input", handleTyping);
+            activeBoxRef.current?.addEventListener("input", handleTyping, true);
 
         }
-    }, []);
-
-
-    useEffect(() => {
-        function handleFocus(e: Event) {
-            const target = e.target as HTMLElement;
-
-            if (target.closest("[data-tone-popup]")) return;
-
-            const box = getActiveTextbox();
-
-            if (!box) {
-                setPopupOpen(false);
-                setActiveBox(null);
-                setButtonPos(null);
-                return;
-            }
-
-            const rect = box.getBoundingClientRect();
-
-            setActiveBox(box);
-            setButtonPos({
-                x: rect.right + window.scrollX - 50,
-                y: rect.bottom + window.scrollY - 35,
-            });
-
-            const text = getTextboxText(box);
-            setInputText(text);
-
-            if (text !== cachedText) {
-                setRewrittenText(null);
-            }
-        }
-
-        document.addEventListener("focusin", handleFocus);
-
-        return () => {
-            document.removeEventListener("focusin", handleFocus);
-        };
-    }, [cachedText])
-
-    async function handleRewrite(text: string, toneLevel: ToneLevel) {
-        setLoading(true);
-        await rewriteText(text, toneLevel).then((result) => {
-            setRewrittenText(result);
-            setCachedText(text);
-        });
-        setLoading(false);
-
-        return `[${toneLevel.toUpperCase}] ${text}`;
-    }
-
-    useEffect(() => {
-        if (!popupOpen || !activeBox) return;
-
-        if (rewrittenText && inputText == cachedText) {
-            return; //cache hit
-        }
-
-        handleRewrite(inputText, tone);
     }, [popupOpen]);
 
-    async function handleToneChange(newTone: ToneLevel) {
-        setTone(newTone);
+    async function runRewrite(toneLevel: ToneLevel) {
+        const text = inputTextRef.current.trim();
+        if (!text) return;
 
-        if (!inputText) return;
+        setLoading(true);
 
-        handleRewrite(inputText, newTone);
+        const result = await rewriteText(text, toneLevel);
+        setRewrittenText(result);
+
+        cachedTextRef.current = text;
+
+        setLoading(false);
+    }
+
+    async function openPopup() {
+        setPopupOpen(true);
+
+        const current = inputTextRef.current.trim();
+
+        if (rewrittenText && current === cachedTextRef.current) return;
+
+        await runRewrite(tone);
     }
 
     function applyRewrite() {
-        if (!activeBox || !rewrittenText) return;
+        const box = activeBoxRef.current;
+        if (!box || !rewrittenText) return;
 
-        setTextboxText(activeBox, rewrittenText);
+        setTextboxText(box, rewrittenText);
         setPopupOpen(false);
+        //setShowRefresh(false);
     }
 
-    console.log("input: ", inputText)
-    console.log("cache: ", cachedText)
+    async function handleToneChange(newTone: ToneLevel) {
+        setTone(newTone);
+        await runRewrite(newTone);
+    }
 
     return (
         <>
@@ -124,7 +120,7 @@ export default function Overlay() {
                 <ToneButton 
                     x={buttonPos.x}
                     y={buttonPos.y}
-                    onClick={() => setPopupOpen(!popupOpen)}
+                    onClick={openPopup}
                 />
             )}
 
@@ -137,7 +133,7 @@ export default function Overlay() {
                     rewrittenText={rewrittenText}
                     onToneSelect={handleToneChange}
                     onApply={applyRewrite}
-                    onClose={() => setPopupOpen(false)}
+                    onClose={() => setPopupOpen(false)} //setshowrefresh(false)
                 />
             )}
         </>
