@@ -76,7 +76,7 @@ export default function Overlay() {
 
                 inputTextRef.current = getTextboxText(box);
 
-                if (popupOpenRef && inputTextRef.current !== cachedTextRef.current) {
+                if (popupOpenRef.current && inputTextRef.current !== cachedTextRef.current) {
                     setShowRefresh(true);
                 }
             });
@@ -108,12 +108,24 @@ export default function Overlay() {
 
     async function openPopup() {
         setPopupOpen(true);
-
+        
         const current = inputTextRef.current.trim();
-
+        
         if (rewrittenText && current === cachedTextRef.current) return;
-
+        console.log("input: ", inputTextRef.current);
+        console.log("cache: ", cachedTextRef.current);
+        
+        
         await runRewrite(tone);
+    }
+    
+    function closePopup() {
+        setPopupOpen(false);
+        setShowRefresh(false);
+
+        requestAnimationFrame(() => {
+            activeBoxRef.current?.focus();
+        })
     }
 
     function applyRewrite() {
@@ -130,14 +142,6 @@ export default function Overlay() {
         await runRewrite(newTone);
     }
 
-    function closePopup() {
-        setPopupOpen(false);
-        setShowRefresh(false);
-
-        requestAnimationFrame(() => {
-            activeBoxRef.current?.focus();
-        })
-    }
 
     return (
         <>
