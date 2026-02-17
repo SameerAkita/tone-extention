@@ -62,7 +62,7 @@ export default function Overlay() {
         setLoading(true);
         await rewriteText(text, toneLevel).then((result) => {
             setRewrittenText(result);
-            setCachedText(inputText);
+            setCachedText(text);
         });
         setLoading(false);
 
@@ -93,6 +93,9 @@ export default function Overlay() {
         setTextboxText(activeBox, rewrittenText);
         setPopupOpen(false);
     }
+
+    console.log("input: ", inputText)
+    console.log("cache: ", cachedText)
 
     return (
         <>
