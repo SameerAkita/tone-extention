@@ -28,7 +28,6 @@ export function setTextboxText(el: HTMLElement, text: string) {
 
 export function pasteText(el: HTMLElement, text: string) {
     el.focus();
-    console.log("paste", text);
     const clipboardData = new DataTransfer();
     clipboardData.setData("text/plain", text);
 
