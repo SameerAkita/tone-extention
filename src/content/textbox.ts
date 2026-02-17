@@ -10,9 +10,11 @@ export function getActiveTextbox(): HTMLElement | null {
 }
 
 export function getTextboxText(el: HTMLElement): string {
-    if (el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) return el.value;
-
-    return el.innerText;
+    let text = el.innerText ?? "";
+    text = text.replace(/\n{2,}/g, "\n");
+    
+    console.log("original", text)
+    return text;
 }
 
 export function setTextboxText(el: HTMLElement, text: string) {
@@ -26,7 +28,7 @@ export function setTextboxText(el: HTMLElement, text: string) {
 
 export function pasteText(el: HTMLElement, text: string) {
     el.focus();
-    
+    console.log("paste", text);
     const clipboardData = new DataTransfer();
     clipboardData.setData("text/plain", text);
 
