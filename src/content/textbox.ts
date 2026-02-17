@@ -17,8 +17,29 @@ export function getTextboxText(el: HTMLElement): string {
     return text;
 }
 
+function selectAllText(el: HTMLElement) {
+    if (el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) {
+        el.select();
+        return;
+    }
+
+    if (el.isContentEditable) {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+
+        const selection = window.getSelection();
+        if (!selection) return;
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+}
+
 export function pasteText(el: HTMLElement, text: string) {
     el.focus();
+
+    selectAllText(el);
+
     const clipboardData = new DataTransfer();
     clipboardData.setData("text/plain", text);
 
