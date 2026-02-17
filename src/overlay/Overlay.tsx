@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { getActiveTextbox, getTextboxText, setTextboxText } from "../content/textbox";
+import { getActiveTextbox, getTextboxText, pasteText } from "../content/textbox";
 import ToneButton from "./ToneButton";
 import { rewriteText } from "../api/rewrite";
 import TonePopup from "./TonePopup";
@@ -110,7 +110,8 @@ export default function Overlay() {
         const box = activeBoxRef.current;
         if (!box || !rewrittenText) return;
 
-        setTextboxText(box, rewrittenText);
+        // setTextboxText(box, rewrittenText);
+        pasteText(box, rewrittenText);
         setPopupOpen(false);
         //setShowRefresh(false);
     }

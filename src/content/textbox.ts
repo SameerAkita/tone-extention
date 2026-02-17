@@ -23,3 +23,17 @@ export function setTextboxText(el: HTMLElement, text: string) {
 
     el.innerText = text;
 }
+
+export function pasteText(el: HTMLElement, text: string) {
+    el.focus();
+    
+    const clipboardData = new DataTransfer();
+    clipboardData.setData("text/plain", text);
+
+    const event = new ClipboardEvent("paste", {
+        clipboardData,
+        bubbles: true,
+    });
+
+    el.dispatchEvent(event);
+}
