@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { getActiveTextbox, getTextboxText, setTextboxText } from "../content/textbox";
 import ToneButton from "./ToneButton";
 import { rewriteText } from "../api/rewrite";
@@ -9,7 +9,6 @@ export type ToneLevel = "casual" | "business" | "formal";
 export default function Overlay() {
     const [popupOpen, setPopupOpen] = useState(false);
     const [activeBox, setActiveBox] = useState<HTMLElement | null>(null);
-
     const [tone, setTone] = useState<ToneLevel>("business");
 
     const [inputText, setInputText] = useState("");
@@ -19,6 +18,28 @@ export default function Overlay() {
     const [loading, setLoading] = useState(false);
 
     const [buttonPos, setButtonPos] = useState<{ x: number; y: number } | null>(null);
+
+    const activeBoxRef = useRef<HTMLElement | null>(null);
+    const inputTextRef = useRef("");
+    const cachedTextRef = useRef("");
+
+    // Typing listener
+    useEffect(() => {
+        if(!activeBoxRef.current) return;
+
+        function handleTyping() {
+            const text = getTextboxText(activeBoxRef.current!);
+            inputTextRef.current = text;
+        }
+
+        activeBoxRef.current.addEventListener("input", handleTyping);
+
+        return () => {
+            activeBoxRef.current?.addEventListener("input", handleTyping);
+
+        }
+    }, []);
+
 
     useEffect(() => {
         function handleFocus(e: Event) {
