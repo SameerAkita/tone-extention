@@ -17,15 +17,6 @@ export function getTextboxText(el: HTMLElement): string {
     return text;
 }
 
-export function setTextboxText(el: HTMLElement, text: string) {
-    if (el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) {
-        el.value = text;
-        return;
-    }
-
-    el.innerText = text;
-}
-
 export function pasteText(el: HTMLElement, text: string) {
     el.focus();
     const clipboardData = new DataTransfer();
