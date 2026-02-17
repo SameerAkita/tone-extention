@@ -130,6 +130,15 @@ export default function Overlay() {
         await runRewrite(newTone);
     }
 
+    function closePopup() {
+        setPopupOpen(false);
+        setShowRefresh(false);
+
+        requestAnimationFrame(() => {
+            activeBoxRef.current?.focus();
+        })
+    }
+
     return (
         <>
             {buttonPos && (
@@ -149,8 +158,9 @@ export default function Overlay() {
                     rewrittenText={rewrittenText}
                     showRefresh={showRefresh}
                     onToneSelect={handleToneChange}
+                    onRefresh={() => runRewrite(tone)}
                     onApply={applyRewrite}
-                    onClose={() => setPopupOpen(false)} //setshowrefresh(false)
+                    onClose={closePopup}
                 />
             )}
         </>

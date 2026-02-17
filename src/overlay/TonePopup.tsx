@@ -9,6 +9,7 @@ type Props = {
     showRefresh: boolean;
 
     onToneSelect: (tone: ToneLevel) => void;
+    onRefresh: () => void;
     onApply: () => void;
     onClose: () => void;
 };
@@ -21,6 +22,7 @@ export default function TonePopup({
     rewrittenText,
     showRefresh,
     onToneSelect,
+    onRefresh,
     onApply,
     onClose,
 }: Props) {
@@ -44,6 +46,7 @@ export default function TonePopup({
                 Tone Rewrite
                 {showRefresh && (
                     <button
+                    onClick={onRefresh}
                     style={{
                     padding: "6px 8px",
                     borderRadius: 10,
