@@ -61,20 +61,26 @@ export default function Overlay() {
 
     // Typing listener
     useEffect(() => {
-        if(!activeBoxRef.current) return;
+        function handleTyping(e: Event) {
+            requestAnimationFrame(() => {
+                const box = activeBoxRef.current;
+                if (!box) return;
 
-        function handleTyping() {
-            const text = getTextboxText(activeBoxRef.current!);
-            inputTextRef.current = text;
+                if (!box.contains(e.target as Node)) return;
+
+                inputTextRef.current = getTextboxText(box);
+            });
         }
 
-        activeBoxRef.current.addEventListener("input", handleTyping, true);
+        document.addEventListener("beforeinput", handleTyping, true);
+        document.addEventListener("input", handleTyping, true)
 
         return () => {
-            activeBoxRef.current?.addEventListener("input", handleTyping, true);
+            document.removeEventListener("beforeinput", handleTyping, true);
+            document.removeEventListener("input", handleTyping, true);
 
         }
-    }, [popupOpen]);
+    }, []);
 
     async function runRewrite(toneLevel: ToneLevel) {
         const text = inputTextRef.current.trim();
