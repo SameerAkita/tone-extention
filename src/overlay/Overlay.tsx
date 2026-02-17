@@ -12,10 +12,12 @@ export default function Overlay() {
     const [rewrittenText, setRewrittenText] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [buttonPos, setButtonPos] = useState<{ x: number; y: number } | null>(null);
+    const [showRefresh, setShowRefresh] = useState(false);
 
     const activeBoxRef = useRef<HTMLElement | null>(null);
     const inputTextRef = useRef("");
     const cachedTextRef = useRef("");
+    const popupOpenRef = useRef(false); // ref to check state in useEffect that tracks typing - TODO: create useTextboxTracker hook to manage inputText, cachedText etc
 
     // helper
     function updateButtonPosition(box: HTMLElement) {
@@ -26,6 +28,10 @@ export default function Overlay() {
             y: rect.bottom + window.scrollY - 35,
         })
     }
+
+    useEffect(() => {
+        popupOpenRef.current = popupOpen;
+    }, [popupOpen])
 
     // detect textbox focus
     useEffect(() => {
@@ -69,6 +75,10 @@ export default function Overlay() {
                 if (!box.contains(e.target as Node)) return;
 
                 inputTextRef.current = getTextboxText(box);
+
+                if (popupOpenRef && inputTextRef.current !== cachedTextRef.current) {
+                    setShowRefresh(true);
+                }
             });
         }
 
@@ -110,10 +120,9 @@ export default function Overlay() {
         const box = activeBoxRef.current;
         if (!box || !rewrittenText) return;
 
-        // setTextboxText(box, rewrittenText);
         pasteText(box, rewrittenText);
         setPopupOpen(false);
-        //setShowRefresh(false);
+        setShowRefresh(false);
     }
 
     async function handleToneChange(newTone: ToneLevel) {
@@ -138,6 +147,7 @@ export default function Overlay() {
                     tone={tone}
                     loading={loading}
                     rewrittenText={rewrittenText}
+                    showRefresh={showRefresh}
                     onToneSelect={handleToneChange}
                     onApply={applyRewrite}
                     onClose={() => setPopupOpen(false)} //setshowrefresh(false)

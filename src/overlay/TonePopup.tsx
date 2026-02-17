@@ -6,6 +6,7 @@ type Props = {
     tone: ToneLevel;
     loading: boolean;
     rewrittenText: string | null;
+    showRefresh: boolean;
 
     onToneSelect: (tone: ToneLevel) => void;
     onApply: () => void;
@@ -18,6 +19,7 @@ export default function TonePopup({
     tone,
     loading,
     rewrittenText,
+    showRefresh,
     onToneSelect,
     onApply,
     onClose,
@@ -38,7 +40,22 @@ export default function TonePopup({
                 zIndex: 999999,
             }}
         >
-            <div style={{ fontWeight: "bold" }}>Tone Rewrite</div>
+            <div style={{ fontWeight: "bold" }}>
+                Tone Rewrite
+                {showRefresh && (
+                    <button
+                    style={{
+                    padding: "6px 8px",
+                    borderRadius: 10,
+                    border: "1px solid #ddd",
+                    background: "#fff",
+                    color: "black",
+                    cursor: "pointer",
+                    fontSize: 13,
+                    }}
+                    >hi</button>
+                )}
+            </div>
             <div style={{ display: "flex", gap: 8 }}>
                 <ToneLevelButton
                     label="Casual"
