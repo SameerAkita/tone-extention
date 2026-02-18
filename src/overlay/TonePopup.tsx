@@ -32,7 +32,8 @@ export default function TonePopup({
             style={{
                 position: "absolute",
                 left: x - 300,
-                top: y - 240,
+                top: y,
+                transform: "translateY(-100%)",
                 width: 300,
                 padding: 14,
                 borderRadius: 14,
