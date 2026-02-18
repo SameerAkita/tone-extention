@@ -142,6 +142,10 @@ export default function Overlay() {
         await runRewrite(newTone);
     }
 
+    async function handleRefresh() {
+        await runRewrite(tone);
+        setShowRefresh(false);
+    }
 
     return (
         <>
@@ -162,7 +166,7 @@ export default function Overlay() {
                     rewrittenText={rewrittenText}
                     showRefresh={showRefresh}
                     onToneSelect={handleToneChange}
-                    onRefresh={() => runRewrite(tone)}
+                    onRefresh={handleRefresh}
                     onApply={applyRewrite}
                     onClose={closePopup}
                 />
