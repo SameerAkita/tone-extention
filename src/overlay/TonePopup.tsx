@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { ToneLevel } from "./Overlay";
 
 type Props = {
@@ -26,6 +27,8 @@ export default function TonePopup({
     onApply,
     onClose,
 }: Props) {
+    const [hover, setHover] = useState(false);
+
     return (
         <div
             data-tone-popup="true"
@@ -45,21 +48,48 @@ export default function TonePopup({
         >
             <div style={{ fontWeight: "bold" }}>
                 Tone Rewrite
-                <button
-                    onClick={onRefresh}
-                    disabled={!showRefresh}
+                <div
                     style={{
-                    padding: "6px 8px",
-                    borderRadius: 10,
-                    border: "1px solid #ddd",
-                    background: "#fff",
-                    color: showRefresh ? "black" : "#ddd",
-                    cursor: showRefresh ? "pointer" : "",
-                    fontSize: 13,
+                        position: "relative",
+                        display: "inline-block"
                     }}
+                    onMouseEnter={() => setHover(true)}
+                    onMouseLeave={() => setHover(false)}
                 >
-                    refresh
-                </button>
+                    <button
+                        onClick={onRefresh}
+                        disabled={!showRefresh}
+                        style={{
+                        padding: "6px 8px",
+                        borderRadius: 10,
+                        border: "1px solid #ddd",
+                        background: "#fff",
+                        color: showRefresh ? "black" : "#ddd",
+                        cursor: showRefresh ? "pointer" : "",
+                        fontSize: 13,
+                        }}
+                    >
+                        refresh
+                    </button>
+                    {hover && (<div
+                        style={{
+                            position: "absolute",
+                            bottom: "130%",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            background: "black",
+                            color: "white",
+                            padding: "6px 8px",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            whiteSpace: "nowrap",
+                            zIndex: 999999,
+                        }}
+                        className="tooltip"
+                    >
+                        {showRefresh ? "Input changed - click to update rewrite" : "Type something new to enable rewrite"}
+                    </div>)}
+                </div>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
                 <ToneLevelButton
