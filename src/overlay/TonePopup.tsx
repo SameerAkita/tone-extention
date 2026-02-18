@@ -82,8 +82,12 @@ export default function TonePopup({
                     padding: 10,
                     borderRadius: 10,
                     background: "#f7f7f7",
-                    minHeight: 80,
                     fontSize: 13,
+                    minHeight: 80,
+                    maxHeight: 200,
+                    overflowY: "auto",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
                 }}
             >
                 {loading && "Rewriting..."}
