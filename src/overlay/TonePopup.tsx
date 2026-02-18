@@ -45,20 +45,21 @@ export default function TonePopup({
         >
             <div style={{ fontWeight: "bold" }}>
                 Tone Rewrite
-                {showRefresh && (
-                    <button
+                <button
                     onClick={onRefresh}
+                    disabled={!showRefresh}
                     style={{
                     padding: "6px 8px",
                     borderRadius: 10,
                     border: "1px solid #ddd",
                     background: "#fff",
-                    color: "black",
-                    cursor: "pointer",
+                    color: showRefresh ? "black" : "#ddd",
+                    cursor: showRefresh ? "pointer" : "",
                     fontSize: 13,
                     }}
-                    >hi</button>
-                )}
+                >
+                    refresh
+                </button>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
                 <ToneLevelButton
