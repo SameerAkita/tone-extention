@@ -1,6 +1,9 @@
 import { useState } from "react";
 import type { ToneLevel } from "./Overlay";
 import { theme } from "../constants/colors";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons/faArrowsRotate";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 type Props = {
     x: number;
@@ -47,7 +50,16 @@ export default function TonePopup({
                 zIndex: 999999,
             }}
         >
-            <div style={{ fontWeight: "bold", color: theme.colors.primary }}>
+            <div 
+                style={{ 
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    fontWeight: "bold", 
+                    color: "#004225" ,
+                    fontSize: 24,
+                }}
+            >
                 Tone
                 <div
                     style={{
@@ -63,14 +75,14 @@ export default function TonePopup({
                         style={{
                         padding: "6px 8px",
                         borderRadius: 10,
-                        border: "1px solid #ddd",
+                        border: "none",
                         background: "#fff",
                         color: showRefresh ? "black" : "#ddd",
                         cursor: showRefresh ? "pointer" : "",
                         fontSize: 13,
                         }}
                     >
-                        refresh
+                        <FontAwesomeIcon icon={faArrowsRotate} />
                     </button>
                     {hover && (<div
                         style={{
@@ -91,8 +103,20 @@ export default function TonePopup({
                         {showRefresh ? "Input changed - click to update rewrite" : "Type something new to enable rewrite"}
                     </div>)}
                 </div>
+                <button
+                    onClick={onClose}
+                    style={{
+                        marginLeft: "auto",
+                        border: "none",
+                        background: "#fff",
+                        color: "black",
+                        cursor: "pointer",
+                    }}
+                >
+                    <FontAwesomeIcon icon={faXmark} />
+                </button>
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
                 <ToneLevelButton
                     label="Casual"
                     active={tone==="casual"}
@@ -135,27 +159,12 @@ export default function TonePopup({
                     padding: 10,
                     borderRadius: 10,
                     border: "none",
-                    background: "black",
+                    background: theme.colors.primary,
                     color: "white",
                     cursor: "pointer",
                 }}
             >
                 Apply
-            </button>
-
-            <button
-                onClick={onClose}
-                style={{
-                    marginTop: 6,
-                    width: "100%",
-                    padding: 10,
-                    borderRadius: 10,
-                    border: "1px solid #ddd",
-                    background: "white",
-                    cursor: "pointer",
-                }}
-            >
-                Close
             </button>
         </div>
     )
@@ -177,8 +186,8 @@ function ToneLevelButton({
                 flex: 1,
                 padding: "6px 8px",
                 borderRadius: 10,
-                border: active ? "2px solid black" : "1px solid #ddd",
-                background: active ? "#000" : "#fff",
+                border: active ? `2px solid ${theme.colors.primary}` : "1px solid #ddd",
+                background: active ? theme.colors.primary : "#fff",
                 color: active ? "white" : "black",
                 cursor: "pointer",
                 fontSize: 13,

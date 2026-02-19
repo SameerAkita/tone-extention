@@ -1,3 +1,5 @@
+import { theme } from "../constants/colors";
+
 type Props = {
     x: number;
     y: number;
@@ -12,17 +14,18 @@ export default function ToneButton({ x, y, onClick }: Props) {
                 left: x,
                 top: y,
                 zIndex: 999999,
-                padding: "6px 10px",
-                borderRadius: "8px",
-                background: "black",
+                padding: "5px 10px",
+                borderRadius: "25px",
+                background: theme.colors.primary,
                 color: "white",
                 border: "none",
                 cursor: "pointer",
+                fontWeight: "bold",
             }}
             onMouseDown={(e) => e.preventDefault()}
             onClick={onClick}
         >
-            Tone
+            T
         </button>
     );
 }
