@@ -1,13 +1,13 @@
 console.log("background service")
 
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
     if (msg.type !== "REWRITE") return;
 
     console.log("Rewrite request received: msg");
 
-    async () => {
+    (async () => {
         try {
-            const res = await fetch("http://locahhost:3000/api/rewrite", {
+            const res = await fetch("http://localhost:3000/api/rewrite", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             console.log("rewrite failed: ", err);
             sendResponse({ error: "Backend call failed" })
         }
-    };
+    })();
 
     return true;
 })
