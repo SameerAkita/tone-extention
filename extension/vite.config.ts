@@ -14,5 +14,6 @@ export default defineConfig({
         entryFileNames: "[name].js"
       }
     }
-  }
+  },
+  publicDir: "public"
 });
