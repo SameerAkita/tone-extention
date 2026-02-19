@@ -98,8 +98,8 @@ export default function Overlay() {
 
         setLoading(true);
 
-        const result = await rewriteText(text, toneLevel);
-        setRewrittenText(result);
+        const { hello } = await rewriteText(text, toneLevel);
+        setRewrittenText(hello);
 
         cachedTextRef.current = text;
 

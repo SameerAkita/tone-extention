@@ -1,6 +1,11 @@
 import type { ToneLevel } from "../overlay/Overlay";
 
-export async function rewriteText(text: string, tone: ToneLevel) {
+export interface RewriteResponse {
+    hello: string;
+    error?: string;
+}
+
+export async function rewriteText(text: string, tone: ToneLevel): Promise<RewriteResponse> {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage(
             {
