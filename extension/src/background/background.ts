@@ -3,7 +3,7 @@ console.log("background service")
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
     if (msg.type !== "REWRITE") return;
 
-    console.log("Rewrite request received: msg");
+    console.log("Rewrite request received: ", msg);
 
     (async () => {
         try {
