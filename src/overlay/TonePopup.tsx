@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ToneLevel } from "./Overlay";
+import { theme } from "../constants/colors";
 
 type Props = {
     x: number;
@@ -46,8 +47,8 @@ export default function TonePopup({
                 zIndex: 999999,
             }}
         >
-            <div style={{ fontWeight: "bold" }}>
-                Tone Rewrite
+            <div style={{ fontWeight: "bold", color: theme.colors.primary }}>
+                Tone
                 <div
                     style={{
                         position: "relative",
