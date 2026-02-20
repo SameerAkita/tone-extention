@@ -1,7 +1,7 @@
 import type { ToneLevel } from "../overlay/Overlay";
 
 export interface RewriteResponse {
-    hello: string;
+    rewrittenText?: string;
     error?: string;
 }
 

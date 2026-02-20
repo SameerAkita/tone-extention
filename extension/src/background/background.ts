@@ -23,6 +23,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             console.log("backend response: ", data);
             sendResponse(data);
         } catch (err) {
+            console.log(msg);
             console.log("rewrite failed: ", err);
             sendResponse({ error: "Backend call failed" })
         }

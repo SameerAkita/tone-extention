@@ -97,13 +97,23 @@ export default function Overlay() {
         if (!text) return;
 
         setLoading(true);
+        try {
+            const { rewrittenText, error } = await rewriteText(text, toneLevel);
+            if (error) {
+                console.error("Rewrite failed:", error);
+                return;
+            }
 
-        const { hello } = await rewriteText(text, toneLevel);
-        setRewrittenText(hello);
+            if (!rewrittenText) {
+                console.error("Rewrite failed: missing rewrittenText in response");
+                return;
+            }
 
-        cachedTextRef.current = text;
-
-        setLoading(false);
+            setRewrittenText(rewrittenText);
+            cachedTextRef.current = text;
+        } finally {
+            setLoading(false);
+        }
     }
 
     async function openPopup() {
