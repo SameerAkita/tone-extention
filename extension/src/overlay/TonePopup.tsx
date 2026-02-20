@@ -148,11 +148,16 @@ export default function TonePopup({
                 }}
             >
                 {loading && "Rewriting..."}
-                {!loading && rewrittenText}
+                {!loading && showRefresh && (
+                    rewrittenText
+                        ? rewrittenText
+                        : "Input changed and no saved rewrite exists for this tone. Click refresh to rewrite current input."
+                )}
+                {!loading && !showRefresh && rewrittenText}
             </div>
             <button
                 onClick={onApply}
-                disabled={!rewrittenText}
+                disabled={!rewrittenText || showRefresh}
                 style={{
                     marginTop: 12,
                     width: "100%",

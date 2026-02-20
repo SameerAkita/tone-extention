@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     const safeTone = tone ?? "business";
 
     const response = await client.responses.create({
-      model: "gpt-5-mini",
+      model: "gpt-5-nano",
       input: [
         {
           role: "system",

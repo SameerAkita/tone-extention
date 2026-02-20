@@ -17,7 +17,12 @@ export default function Overlay() {
     const activeBoxRef = useRef<HTMLElement | null>(null);
     const inputTextRef = useRef("");
     const cachedTextRef = useRef("");
+    const rewriteCacheRef = useRef<Map<string, string>>(new Map());
     const popupOpenRef = useRef(false); // ref to check state in useEffect that tracks typing - TODO: create useTextboxTracker hook to manage inputText, cachedText etc
+
+    function getCacheKey(text: string, toneLevel: ToneLevel) {
+        return `${toneLevel}::${text}`;
+    }
 
     // helper
     function updateButtonPosition(box: HTMLElement) {
@@ -96,6 +101,15 @@ export default function Overlay() {
         const text = inputTextRef.current.trim();
         if (!text) return;
 
+        const cacheKey = getCacheKey(text, toneLevel);
+        const cachedRewrite = rewriteCacheRef.current.get(cacheKey);
+        if (cachedRewrite) {
+            setRewrittenText(cachedRewrite);
+            cachedTextRef.current = text;
+            setShowRefresh(false);
+            return;
+        }
+
         setLoading(true);
         try {
             const { rewrittenText, error } = await rewriteText(text, toneLevel);
@@ -110,7 +124,9 @@ export default function Overlay() {
             }
 
             setRewrittenText(rewrittenText);
+            rewriteCacheRef.current.set(cacheKey, rewrittenText);
             cachedTextRef.current = text;
+            setShowRefresh(false);
         } finally {
             setLoading(false);
         }
@@ -120,6 +136,13 @@ export default function Overlay() {
         setPopupOpen(true);
         
         const current = inputTextRef.current.trim();
+        const cachedRewrite = rewriteCacheRef.current.get(getCacheKey(current, tone));
+        if (cachedRewrite) {
+            setRewrittenText(cachedRewrite);
+            cachedTextRef.current = current;
+            setShowRefresh(false);
+            return;
+        }
         
         if (rewrittenText && current === cachedTextRef.current) return;
         console.log("input: ", inputTextRef.current);
@@ -149,6 +172,17 @@ export default function Overlay() {
 
     async function handleToneChange(newTone: ToneLevel) {
         setTone(newTone);
+        if (showRefresh) {
+            const cachedRewrite = rewriteCacheRef.current.get(
+                getCacheKey(cachedTextRef.current, newTone),
+            );
+            if (cachedRewrite) {
+                setRewrittenText(cachedRewrite);
+            } else {
+                setRewrittenText(null);
+            }
+            return;
+        }
         await runRewrite(newTone);
     }
 
