@@ -6,6 +6,7 @@ const client = new OpenAI({
 });
 
 export async function POST(req: Request) {
+  const startedAt = Date.now();
   try {
     const body = await req.json();
     const { text, tone } = body as { text?: string; tone?: string };
@@ -21,6 +22,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing text" }, { status: 400 });
     }
 
+    const trimmedText = text.trim();
+    const MAX_INPUT_CHARS = 4000;
+    const boundedText =
+      trimmedText.length > MAX_INPUT_CHARS
+        ? trimmedText.slice(0, MAX_INPUT_CHARS)
+        : trimmedText;
+
     const safeTone = tone ?? "business";
 
     const response = await client.responses.create({
@@ -29,27 +37,48 @@ export async function POST(req: Request) {
         {
           role: "system",
           content:
-            `Rewrite text while preserving meaning and factual details in a ${tone} tone. Return only the rewritten text`,
+            `Rewrite text while preserving meaning and factual details in a ${safeTone} tone. Return only the rewritten text.`,
         },
         {
           role: "user",
-          content: `Tone: ${safeTone}\n\nText:\n${text}`,
+          content: `Tone: ${safeTone}\n\nText:\n${boundedText}`,
         },
       ],
+    });
+
+    console.log("openai usage", {
+      inputTokens: response.usage?.input_tokens,
+      outputTokens: response.usage?.output_tokens,
+      totalTokens: response.usage?.total_tokens,
     });
 
     const rewritten = response.output_text?.trim();
 
     if (!rewritten) {
+      console.log("openai empty output_text", {
+        id: response.id,
+        status: response.status,
+        outputLength: response.output?.length ?? 0,
+      });
       return NextResponse.json(
         { error: "OpenAI did not return rewritten text" },
         { status: 502 },
       );
     }
 
+    const elapsedMs = Date.now() - startedAt;
+    console.log("rewrite completed", {
+      tone: safeTone,
+      inputChars: boundedText.length,
+      elapsedMs,
+    });
+
     return NextResponse.json({ rewrittenText: rewritten });
   } catch (err) {
-    console.error(err);
+    console.error("rewrite failed", {
+      elapsedMs: Date.now() - startedAt,
+      err,
+    });
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 },
