@@ -11,5 +11,6 @@
     "background": {
       "service_worker": "background.js"
     },
-    "host_permissions": ["http://localhost:3000/*"]
+    "host_permissions": ["http://localhost:3000/*"],
+    "externally_connectable": ["http://localhost:3001/*"]
   }
