@@ -31,8 +31,20 @@ window.addEventListener("message", (event) => {
         return;
     }
 
-    chrome.runtime.sendMessage({ type: "EXT_AUTH_SET", token }, (response) => {
-        const runtimeError = chrome.runtime.lastError?.message;
+    const runtime = globalThis.chrome?.runtime;
+    if (!runtime?.sendMessage) {
+        window.postMessage(
+            {
+                type: "TONE_EXTENSION_AUTH_RESULT",
+                error: "Extension runtime is unavailable on this page. Check extension site access and reload extension.",
+            },
+            window.location.origin,
+        );
+        return;
+    }
+
+    runtime.sendMessage({ type: "EXT_AUTH_SET", token }, (response) => {
+        const runtimeError = runtime.lastError?.message;
         if (runtimeError) {
             window.postMessage(
                 { type: "TONE_EXTENSION_AUTH_RESULT", error: runtimeError },
