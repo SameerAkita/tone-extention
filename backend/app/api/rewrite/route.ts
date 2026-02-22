@@ -117,7 +117,7 @@ export async function POST(req: Request) {
         {
           role: "system",
           content:
-            `Rewrite text while preserving meaning and factual details in a ${safeTone} tone. Return only the rewritten text.`,
+            `Rewrite text in a ${safeTone} tone. Return only the rewritten text.`,
         },
         {
           role: "user",

@@ -18,6 +18,17 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         return true;
     }
 
+    if (msg.type === "EXT_AUTH_CLEAR") {
+        chrome.storage.local.remove(["authToken"], () => {
+            if (chrome.runtime.lastError) {
+                sendResponse({ error: chrome.runtime.lastError.message ?? "Failed to clear token" });
+                return;
+            }
+            sendResponse({ ok: true });
+        });
+        return true;
+    }
+
     if (msg.type !== "REWRITE") return;
 
     console.log("Rewrite request received: ", msg);
