@@ -6,6 +6,16 @@ const client = new OpenAI({
 });
 
 export async function POST(req: Request) {
+    const auth = req.headers.get("authorization")
+
+    if (!auth || !auth.startsWith("Bearer ")) {
+        return NextResponse.json(
+            { error: "Unauthorized" },
+            { status: 401 },
+        )
+    }
+
+
   const startedAt = Date.now();
   try {
     const body = await req.json();
