@@ -15,6 +15,12 @@ type ExtensionTokenPayload = {
     jti?: string;
 };
 
+function fromBase64Url(input: string) {
+    const pad = "=".repeat((4 - (input.length % 4)) % 4);
+    const base64 = input.replace(/-/g, "+").replace(/_/g, "/") + pad;
+    return Buffer.from(base64, "base64").toString("utf8");
+}
+
 function verifyExtensionToken(
     token: string,
     secret: string,
@@ -43,6 +49,8 @@ function verifyExtensionToken(
     ) {
         throw new Error("Invalid signature");
     }
+
+    const payload = JSON.parse()
 }
 
 export async function POST(req: Request) {
