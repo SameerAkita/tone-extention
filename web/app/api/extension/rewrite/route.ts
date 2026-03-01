@@ -1,5 +1,5 @@
 import { OpenAI } from "openai";
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -36,6 +36,13 @@ function verifyExtensionToken(
 
     const actualSig = Buffer.from(encodedSignature, "utf8");
     const expectedSig = Buffer.from(expectedSignature, "utf8");
+
+    if (
+        actualSig.length !== expectedSig.length ||
+        !timingSafeEqual(actualSig, expectedSig)
+    ) {
+        throw new Error("Invalid signature");
+    }
 }
 
 export async function POST(req: Request) {
