@@ -1,25 +1,19 @@
-import type { ToneLevel } from "../../../../../extension/src/overlay/Overlay"
+import { OpenAI } from "openai";
 
-export interface RewriteResponse {
-    rewrittenText?: string;
-    error?: string;
+const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
+
+type ExtensionTokenPayload = {
+    sub: string;
+    email?: string;
+    aud: string;
+    iss: string;
+    iat: number;
+    exp: number;
+    jti?: string;
 }
 
-export async function rewriteText(text: string, tone: ToneLevel): Promise<RewriteResponse> {
-    return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(
-            {
-                type: "REWRITE",
-                text,
-                tone,
-            },
-            (response) => {
-                if (chrome.runtime.lastError) {
-                    reject(chrome.runtime.lastError);
-                } else {
-                    resolve(response);
-                }
-            }
-        );
-    });
+export async function POST(req: Request) {
+    const auth = req.headers.get("authorization");
 }
