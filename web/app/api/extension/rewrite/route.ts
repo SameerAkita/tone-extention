@@ -50,7 +50,17 @@ function verifyExtensionToken(
         throw new Error("Invalid signature");
     }
 
-    const payload = JSON.parse()
+    const payload = JSON.parse(
+        fromBase64Url(encodedPayload),
+    ) as ExtensionTokenPayload;
+
+    const now = Math.floor(Date.now() / 1000);
+    if (!payload.sub) throw new Error("Missing sub");
+    if (payload.exp <= now) throw new Error("Token expired");
+    if (payload.aud !== "tone-extension") throw new Error("Invalid audience");
+    if (payload.iss !== "tone-web") throw new Error("Invalid issuer");
+
+    return payload;
 }
 
 export async function POST(req: Request) {
