@@ -41,7 +41,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 return;
             }
 
-            const res = await fetch("http://localhost:3000/api/rewrite", {
+            const res = await fetch("http://localhost:3000/api/extension/rewrite", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
