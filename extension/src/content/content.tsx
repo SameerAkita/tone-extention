@@ -2,7 +2,7 @@ import ReactDOM from "react-dom/client";
 import Overlay from "../overlay/Overlay"
 
 const TRUSTED_WEB_ORIGINS = new Set([
-    "http://localhost:3001",
+    "http://localhost:3000",
 ]);
 
 function mountOverlay() {
