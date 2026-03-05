@@ -12,7 +12,7 @@ export function Hero() {
         Your ideas conveyed in one click.
       </p>
       <button
-        className="bg-primary"
+        className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-semibold hover:bg-primary/90"
       >
         <Link href={"/auth/sign-up"}>
           Start free trial
