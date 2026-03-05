@@ -12,7 +12,7 @@ export function Hero() {
         Your ideas conveyed in one click.
       </p>
       <button
-        className=""
+        className="bg-primary"
       >
         <Link href={"/auth/sign-up"}>
           Start free trial
