@@ -1,14 +1,23 @@
+import Link from "next/link";
 import { NextLogo } from "./next-logo";
 import { SupabaseLogo } from "./supabase-logo";
 
 export function Hero() {
   return (
-    <div className="flex flex-col gap-16 items-center">
-      <h1 className="sr-only">Supabase and Next.js Starter Template</h1>
-      <p className="text-3xl lg:text-4xl !leading-tight mx-auto max-w-xl text-center">
+    <div className="flex flex-col gap-8 items-center">
+      <p className="text-4xl lg:text-5xl font-semibold !leading-tight mx-auto max-w-xl text-center">
         Business Japanese<br></br>without the effort
       </p>
-      <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent my-8" />
+      <p className="text-base lg:text-xl">
+        Your ideas conveyed in one click.
+      </p>
+      <button
+        className=""
+      >
+        <Link href={"/auth/sign-up"}>
+          Start free trial
+        </Link>
+      </button>
     </div>
   );
 }
