@@ -9,7 +9,7 @@ export function Hero() {
         Business Japanese<br></br>without the effort
       </p>
       <p className="text-base lg:text-xl">
-        Your ideas conveyed in one click.
+        Your thoughts conveyed in one click.
       </p>
       <button
         className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-semibold hover:bg-primary/90"
