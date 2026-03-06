@@ -17,7 +17,7 @@ export default function Navbar() {
               <Link href="/pricing" className="px-2 py-1 rounded-md hover:text-foreground hover:bg-foreground/10">
                 Pricing
               </Link>
-              <Link href="/blog" className="px-2 py-1 rounded-md hover:text-foreground hover:bg-foreground/10">
+              <Link href="/updates" className="px-2 py-1 rounded-md hover:text-foreground hover:bg-foreground/10">
                 Updates
               </Link>
             </div>
