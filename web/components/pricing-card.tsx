@@ -9,6 +9,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+
 
 type PricingCardProps = {
   name: string;
@@ -60,8 +63,11 @@ export function PricingCard({
         </div>
         <ul className="space-y-3 text-sm text-muted-foreground">
           {features.map((feature) => (
-            <li key={feature} className="flex items-start gap-2">
-              <span className="mt-1 text-primary">●</span>
+            <li key={feature} className="flex items-center gap-2">
+              <FontAwesomeIcon
+                icon={faCircleCheck}
+                className="h-4 w-4 shrink-0 text-primary"
+              />
               <span>{feature}</span>
             </li>
           ))}
