@@ -1,10 +1,7 @@
-import { DeployButton } from "@/components/deploy-button";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { AuthButton } from "@/components/auth-button";
 import { Hero } from "@/components/hero";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
-import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
 import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -15,17 +12,32 @@ export default function Home() {
     <main className="min-h-screen flex flex-col items-center">
       <div className="flex-1 w-full flex flex-col gap-20 items-center">
         <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-          <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-            <div className="flex gap-5 items-center font-semibold text-primary">
-              <Link href={"/"}>Tone</Link>
+          <div className="grid h-full w-full max-w-5xl grid-cols-[1fr_auto_1fr] items-center p-3 px-5 text-sm">
+            <div className="justify-self-start">
+              <Link href="/" className="font-semibold text-primary">
+                Tone
+              </Link>
             </div>
-            {!hasEnvVars ? (
-              <EnvVarWarning />
-            ) : (
-              <Suspense>
-                <AuthButton />
-              </Suspense>
-            )}
+            <div className="flex items-center gap-8 text-foreground/80 justify-self-center">
+              <Link href="/pricing" className="px-2 py-1 rounded-md hover:text-foreground hover:bg-foreground/10">
+                Pricing
+              </Link>
+              <Link href="/blog" className="px-2 py-1 rounded-md hover:text-foreground hover:bg-foreground/10">
+                Blog
+              </Link>
+              <Link href="/roadmap" className="px-2 py-1 rounded-md hover:text-foreground hover:bg-foreground/10">
+                Roadmap
+              </Link>
+            </div>
+            <div className="justify-self-end">
+              {!hasEnvVars ? (
+                <EnvVarWarning />
+              ) : (
+                <Suspense>
+                  <AuthButton />
+                </Suspense>
+              )}
+            </div>
           </div>
         </nav>
         <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5">
