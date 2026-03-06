@@ -13,30 +13,31 @@ export function PricingSection() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <PricingCard
-          name="Starter"
+          name="Monthly"
           description="For occasional professional writing."
-          price="$0"
+          price="¥1200"
           period="/month"
-          ctaLabel="Start free"
-          ctaHref="/auth/sign-up"
-          features={[
-            "20 rewrites per month",
-            "Basic tone presets",
-            "Browser extension access",
-          ]}
-        />
-        <PricingCard
-          name="Pro"
-          description="For daily business communication."
-          price="$12"
-          period="/month"
-          ctaLabel="Upgrade to Pro"
+          ctaLabel="Start free trial"
           ctaHref="/auth/sign-up"
           features={[
             "Unlimited rewrites",
-            "Advanced tone presets",
-            "Priority support",
-            "Team-ready workflows",
+            "Basic tone presets",
+            "Browser extension access",
+            "Weekly updates"
+          ]}
+        />
+        <PricingCard
+          name="Yearly"
+          description="For daily business communication."
+          price="¥1000"
+          period="/month"
+          ctaLabel="Start free trial"
+          ctaHref="/auth/sign-up"
+          features={[
+            "Unlimited rewrites",
+            "Basic tone presets",
+            "Browser extension access",
+            "Weekly updates"
           ]}
           isPopular
         />
