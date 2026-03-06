@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 
-
 type PricingCardProps = {
   name: string;
   description: string;
@@ -37,13 +36,13 @@ export function PricingCard({
   return (
     <Card
       className={cn(
-        "relative flex h-full flex-col rounded-2xl",
-        isPopular ? "border-primary shadow-md" : "border-border",
+        "animate-fade-up relative flex h-full flex-col rounded-2xl border-border/70 bg-card/95 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl",
+        isPopular ? "border-primary shadow-lg" : "",
       )}
     >
       {isPopular ? (
         <span className="absolute right-5 top-5 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-          Popular
+          Most popular
         </span>
       ) : null}
 

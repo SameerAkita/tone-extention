@@ -2,12 +2,11 @@ import { PricingCard } from "./pricing-card";
 
 export function PricingSection() {
   return (
-    <section className="w-full">
-      <div className="mx-auto mb-8 max-w-2xl text-center">
-        <h2 className="text-3xl font-semibold tracking-tight">Simple pricing</h2>
+    <section className="w-full py-4">
+      <div className="mx-auto mb-8 max-w-2xl text-center animate-fade-up">
+        <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Simple pricing</h2>
         <p className="mt-3 text-muted-foreground">
-          Start for free, then upgrade when you need more rewrites and team
-          features.
+          Start free and upgrade when you need unlimited rewrites and priority support.
         </p>
       </div>
 
@@ -23,7 +22,7 @@ export function PricingSection() {
             "Unlimited rewrites",
             "Basic tone presets",
             "Browser extension access",
-            "Weekly updates"
+            "Weekly updates",
           ]}
         />
         <PricingCard
@@ -37,7 +36,7 @@ export function PricingSection() {
             "Unlimited rewrites",
             "Basic tone presets",
             "Browser extension access",
-            "Weekly updates"
+            "Weekly updates",
           ]}
           isPopular
         />
