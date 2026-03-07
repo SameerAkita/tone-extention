@@ -1,3 +1,15 @@
+const DEFAULT_WEB_ORIGIN = "http://localhost:3000";
+const webOriginFromEnv = import.meta.env.VITE_WEB_ORIGIN;
+const WEB_ORIGIN =
+    webOriginFromEnv && webOriginFromEnv.trim().length > 0
+        ? webOriginFromEnv.replace(/\/+$/, "")
+        : DEFAULT_WEB_ORIGIN;
+const rewriteEndpointFromEnv = import.meta.env.VITE_REWRITE_ENDPOINT;
+const REWRITE_ENDPOINT =
+    rewriteEndpointFromEnv && rewriteEndpointFromEnv.trim().length > 0
+        ? rewriteEndpointFromEnv
+        : `${WEB_ORIGIN}/api/extension/rewrite`;
+
 console.log("background service")
 
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
@@ -41,7 +53,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 return;
             }
 
-            const res = await fetch("http://localhost:3000/api/extension/rewrite", {
+            const res = await fetch(REWRITE_ENDPOINT, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

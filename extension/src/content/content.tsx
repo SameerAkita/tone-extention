@@ -1,8 +1,15 @@
 import ReactDOM from "react-dom/client";
 import Overlay from "../overlay/Overlay"
 
+const DEFAULT_WEB_ORIGIN = "http://localhost:3000";
+const webOriginFromEnv = import.meta.env.VITE_WEB_ORIGIN;
+const WEB_ORIGIN =
+    webOriginFromEnv && webOriginFromEnv.trim().length > 0
+        ? webOriginFromEnv.replace(/\/+$/, "")
+        : DEFAULT_WEB_ORIGIN;
+
 const TRUSTED_WEB_ORIGINS = new Set([
-    "http://localhost:3000",
+    WEB_ORIGIN,
 ]);
 
 function mountOverlay() {
