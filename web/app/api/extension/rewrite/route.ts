@@ -1,7 +1,6 @@
 import { OpenAI } from "openai";
-import { createHmac, timingSafeEqual, verify } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
-import next from "next";
 
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
