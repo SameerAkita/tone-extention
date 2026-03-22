@@ -12,10 +12,13 @@ type Props = {
     loading: boolean;
     rewrittenText: string | null;
     showRefresh: boolean;
+    authRequired: boolean;
+    errorMessage: string | null;
 
     onToneSelect: (tone: ToneLevel) => void;
     onRefresh: () => void;
     onApply: () => void;
+    onConnectAccount: () => void;
     onClose: () => void;
 };
 
@@ -26,9 +29,12 @@ export default function TonePopup({
     loading,
     rewrittenText,
     showRefresh,
+    authRequired,
+    errorMessage,
     onToneSelect,
     onRefresh,
     onApply,
+    onConnectAccount,
     onClose,
 }: Props) {
     const [hover, setHover] = useState(false);
@@ -116,7 +122,7 @@ export default function TonePopup({
                     <FontAwesomeIcon icon={faXmark} />
                 </button>
             </div>
-            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+            {!authRequired && <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
                 <ToneLevelButton
                     label="Casual"
                     active={tone==="casual"}
@@ -132,7 +138,7 @@ export default function TonePopup({
                     active={tone==="formal"}
                     onClick={() => onToneSelect("formal")}
                 />
-            </div>
+            </div>}
             <div
                 style={{
                     marginTop: 12,
@@ -147,6 +153,12 @@ export default function TonePopup({
                     wordBreak: "break-word",
                 }}
             >
+                {authRequired && (
+                    errorMessage
+                        ?? "Sign in required to rewrite text. Connect your account to keep using Tone."
+                )}
+                {!authRequired && (
+                    <>
                 {loading && rewrittenText && rewrittenText}
                 {loading && !rewrittenText && "Rewriting..."}
                 {!loading && showRefresh && (
@@ -155,7 +167,27 @@ export default function TonePopup({
                         : "Input changed and no saved rewrite exists for this tone. Click refresh to rewrite current input."
                 )}
                 {!loading && !showRefresh && rewrittenText}
+                    </>
+                )}
             </div>
+            {authRequired && (
+                <button
+                    onClick={onConnectAccount}
+                    style={{
+                        marginTop: 12,
+                        width: "100%",
+                        padding: 10,
+                        borderRadius: 10,
+                        border: "none",
+                        background: theme.colors.primary,
+                        color: "white",
+                        cursor: "pointer",
+                    }}
+                >
+                    Connect Account
+                </button>
+            )}
+            {!authRequired && (
             <button
                 onClick={onApply}
                 disabled={!rewrittenText || showRefresh || loading}
@@ -172,6 +204,7 @@ export default function TonePopup({
             >
                 Apply
             </button>
+            )}
         </div>
     )
 }

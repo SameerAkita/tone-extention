@@ -3,6 +3,7 @@ import { getActiveTextbox, getTextboxText, pasteText } from "../content/textbox"
 import ToneButton from "./ToneButton";
 import { rewriteText } from "../api/rewrite";
 import TonePopup from "./TonePopup";
+import { WEB_ORIGIN } from "../config/runtime";
 
 export type ToneLevel = "casual" | "business" | "formal";
 
@@ -13,6 +14,8 @@ export default function Overlay() {
     const [loading, setLoading] = useState(false);
     const [buttonPos, setButtonPos] = useState<{ x: number; y: number } | null>(null);
     const [showRefresh, setShowRefresh] = useState(false);
+    const [authRequired, setAuthRequired] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const activeBoxRef = useRef<HTMLElement | null>(null);
     const inputTextRef = useRef("");
@@ -114,6 +117,8 @@ export default function Overlay() {
         const requestId = rewriteRequestIdRef.current + 1;
         rewriteRequestIdRef.current = requestId;
 
+        setAuthRequired(false);
+        setErrorMessage(null);
         setRewrittenText("");
         setLoading(true);
         try {
@@ -129,6 +134,10 @@ export default function Overlay() {
                 console.error("Rewrite failed:", error);
                 if (rewriteRequestIdRef.current === requestId) {
                     setRewrittenText(null);
+                    setErrorMessage(error);
+                    if (isAuthError(error)) {
+                        setAuthRequired(true);
+                    }
                 }
                 return;
             }
@@ -194,6 +203,10 @@ export default function Overlay() {
         setShowRefresh(false);
     }
 
+    function handleConnectAccount() {
+        window.open(`${WEB_ORIGIN}/connect-extension`, "_blank", "noopener,noreferrer");
+    }
+
     async function handleToneChange(newTone: ToneLevel) {
         setTone(newTone);
         if (showRefresh) {
@@ -233,12 +246,22 @@ export default function Overlay() {
                     loading={loading}
                     rewrittenText={rewrittenText}
                     showRefresh={showRefresh}
+                    authRequired={authRequired}
+                    errorMessage={errorMessage}
                     onToneSelect={handleToneChange}
                     onRefresh={handleRefresh}
                     onApply={applyRewrite}
+                    onConnectAccount={handleConnectAccount}
                     onClose={closePopup}
                 />
             )}
         </>
     )
+}
+
+function isAuthError(error: string) {
+    const normalized = error.toLowerCase();
+    return normalized.includes("not signed in")
+        || normalized.includes("connect your account")
+        || normalized.includes("unauthorized");
 }

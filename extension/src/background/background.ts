@@ -111,17 +111,33 @@ async function streamRewrite(
             body: JSON.stringify({ text, tone }),
         });
 
+        const contentType = res.headers.get("content-type") ?? "";
+
         if (!res.ok) {
-            const data = await res.json().catch(() => null);
+            const data = contentType.includes("application/json")
+                ? await res.json().catch(() => null)
+                : null;
             port.postMessage({
                 type: "error",
-                error: data?.error ?? `Rewrite failed with status ${res.status}`,
+                error:
+                    data?.error
+                    ?? (contentType.includes("text/html")
+                        ? "Rewrite endpoint returned an HTML page instead of rewrite text."
+                        : `Rewrite failed with status ${res.status}`),
             });
             return;
         }
 
         if (!res.body) {
             port.postMessage({ type: "error", error: "Rewrite response was not streamable" });
+            return;
+        }
+
+        if (contentType.includes("text/html")) {
+            port.postMessage({
+                type: "error",
+                error: "Rewrite endpoint returned an HTML page instead of rewrite text.",
+            });
             return;
         }
 
