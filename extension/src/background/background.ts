@@ -79,6 +79,79 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
     return true;
 });
 
+chrome.runtime.onConnect.addListener((port) => {
+    if (port.name !== "rewrite-stream") return;
+
+    port.onMessage.addListener((msg) => {
+        if (msg?.type !== "REWRITE_STREAM_START") return;
+
+        void streamRewrite(port, msg.text, msg.tone);
+    });
+});
+
+async function streamRewrite(
+    port: chrome.runtime.Port,
+    text: string,
+    tone: string,
+) {
+    try {
+        const authToken = await getAuthToken();
+        if (!authToken) {
+            port.postMessage({ type: "error", error: "Not signed in. Connect your account first." });
+            return;
+        }
+
+        const res = await fetch(REWRITE_ENDPOINT, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ text, tone }),
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => null);
+            port.postMessage({
+                type: "error",
+                error: data?.error ?? `Rewrite failed with status ${res.status}`,
+            });
+            return;
+        }
+
+        if (!res.body) {
+            port.postMessage({ type: "error", error: "Rewrite response was not streamable" });
+            return;
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let rewrittenText = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            if (!chunk) continue;
+
+            rewrittenText += chunk;
+            port.postMessage({ type: "chunk", chunk });
+        }
+
+        const finalChunk = decoder.decode();
+        if (finalChunk) {
+            rewrittenText += finalChunk;
+            port.postMessage({ type: "chunk", chunk: finalChunk });
+        }
+
+        port.postMessage({ type: "done", rewrittenText });
+    } catch (err) {
+        console.log("rewrite failed: ", err);
+        port.postMessage({ type: "error", error: "Backend call failed" });
+    }
+}
+
 function getAuthToken(): Promise<string | null> {
     return new Promise((resolve) => {
         chrome.storage.local.get(["authToken"], (result) => {

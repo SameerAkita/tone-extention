@@ -19,6 +19,7 @@ export default function Overlay() {
     const cachedTextRef = useRef("");
     const rewriteCacheRef = useRef<Map<string, string>>(new Map());
     const popupOpenRef = useRef(false); // ref to check state in useEffect that tracks typing - TODO: create useTextboxTracker hook to manage inputText, cachedText etc
+    const rewriteRequestIdRef = useRef(0);
 
     function getCacheKey(text: string, toneLevel: ToneLevel) {
         return `${toneLevel}::${text}`;
@@ -110,16 +111,37 @@ export default function Overlay() {
             return;
         }
 
+        const requestId = rewriteRequestIdRef.current + 1;
+        rewriteRequestIdRef.current = requestId;
+
+        setRewrittenText("");
         setLoading(true);
         try {
-            const { rewrittenText, error } = await rewriteText(text, toneLevel);
+            const { rewrittenText, error } = await rewriteText(
+                text,
+                toneLevel,
+                (chunk) => {
+                    if (rewriteRequestIdRef.current !== requestId) return;
+                    setRewrittenText((current) => `${current ?? ""}${chunk}`);
+                },
+            );
             if (error) {
                 console.error("Rewrite failed:", error);
+                if (rewriteRequestIdRef.current === requestId) {
+                    setRewrittenText(null);
+                }
                 return;
             }
 
             if (!rewrittenText) {
                 console.error("Rewrite failed: missing rewrittenText in response");
+                if (rewriteRequestIdRef.current === requestId) {
+                    setRewrittenText(null);
+                }
+                return;
+            }
+
+            if (rewriteRequestIdRef.current !== requestId) {
                 return;
             }
 
@@ -128,7 +150,9 @@ export default function Overlay() {
             cachedTextRef.current = text;
             setShowRefresh(false);
         } finally {
-            setLoading(false);
+            if (rewriteRequestIdRef.current === requestId) {
+                setLoading(false);
+            }
         }
     }
 
@@ -163,7 +187,7 @@ export default function Overlay() {
 
     function applyRewrite() {
         const box = activeBoxRef.current;
-        if (!box || !rewrittenText) return;
+        if (!box || !rewrittenText || loading) return;
 
         pasteText(box, rewrittenText);
         setPopupOpen(false);

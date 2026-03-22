@@ -147,7 +147,8 @@ export default function TonePopup({
                     wordBreak: "break-word",
                 }}
             >
-                {loading && "Rewriting..."}
+                {loading && rewrittenText && rewrittenText}
+                {loading && !rewrittenText && "Rewriting..."}
                 {!loading && showRefresh && (
                     rewrittenText
                         ? rewrittenText
@@ -157,7 +158,7 @@ export default function TonePopup({
             </div>
             <button
                 onClick={onApply}
-                disabled={!rewrittenText || showRefresh}
+                disabled={!rewrittenText || showRefresh || loading}
                 style={{
                     marginTop: 12,
                     width: "100%",
