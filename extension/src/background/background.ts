@@ -94,6 +94,7 @@ async function streamRewrite(
     text: string,
     tone: string,
 ) {
+    const startedAt = Date.now();
     try {
         const authToken = await getAuthToken();
         if (!authToken) {
@@ -127,6 +128,7 @@ async function streamRewrite(
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let rewrittenText = "";
+        let firstChunkAt: number | null = null;
 
         while (true) {
             const { done, value } = await reader.read();
@@ -134,6 +136,15 @@ async function streamRewrite(
 
             const chunk = decoder.decode(value, { stream: true });
             if (!chunk) continue;
+
+            if (firstChunkAt === null) {
+                firstChunkAt = Date.now();
+                console.log("extension rewrite first chunk", {
+                    tone,
+                    inputChars: text.length,
+                    timeToFirstChunkMs: firstChunkAt - startedAt,
+                });
+            }
 
             rewrittenText += chunk;
             port.postMessage({ type: "chunk", chunk });
@@ -144,6 +155,15 @@ async function streamRewrite(
             rewrittenText += finalChunk;
             port.postMessage({ type: "chunk", chunk: finalChunk });
         }
+
+        console.log("extension rewrite completed", {
+            tone,
+            inputChars: text.length,
+            outputChars: rewrittenText.length,
+            timeToFirstChunkMs:
+                firstChunkAt === null ? null : firstChunkAt - startedAt,
+            elapsedMs: Date.now() - startedAt,
+        });
 
         port.postMessage({ type: "done", rewrittenText });
     } catch (err) {
