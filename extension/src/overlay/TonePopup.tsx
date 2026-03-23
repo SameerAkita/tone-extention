@@ -39,22 +39,84 @@ export default function TonePopup({
 }: Props) {
     const [hover, setHover] = useState(false);
 
+    if (authRequired) {
+        return (
+            <div
+                data-tone-popup="true"
+                style={popupStyle(x, y)}
+            >
+                <button
+                    onClick={onClose}
+                    style={closeButtonStyle}
+                >
+                    <FontAwesomeIcon icon={faXmark} />
+                </button>
+
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        textAlign: "center",
+                        gap: 14,
+                        paddingTop: 8,
+                    }}
+                >
+                    <div
+                        style={{
+                            width: 56,
+                            height: 56,
+                            borderRadius: 18,
+                            background: theme.colors.primary,
+                            color: "white",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 24,
+                            fontWeight: 700,
+                            boxShadow: "0 10px 20px rgba(0,66,37,0.18)",
+                        }}
+                    >
+                        T
+                    </div>
+                    <div
+                        style={{
+                            fontSize: 24,
+                            fontWeight: 700,
+                            color: theme.colors.primary,
+                            lineHeight: 1,
+                        }}
+                    >
+                        Tone
+                    </div>
+                    <div
+                        style={{
+                            padding: "12px 14px",
+                            borderRadius: 12,
+                            background: "#f7f7f7",
+                            color: "#2f2f2f",
+                            fontSize: 13,
+                            lineHeight: 1.5,
+                        }}
+                    >
+                        {errorMessage
+                            ?? "Sign in required to rewrite text. Connect your account to keep using Tone."}
+                    </div>
+                    <button
+                        onClick={onConnectAccount}
+                        style={primaryButtonStyle}
+                    >
+                        Connect Account
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div
             data-tone-popup="true"
-            style={{
-                position: "absolute",
-                left: x - 300,
-                top: y,
-                transform: "translateY(-100%)",
-                width: 300,
-                padding: 14,
-                borderRadius: 14,
-                background: "white",
-                border: "1px solid #ddd",
-                boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
-                zIndex: 999999,
-            }}
+            style={popupStyle(x, y)}
         >
             <div 
                 style={{ 
@@ -65,8 +127,8 @@ export default function TonePopup({
                     color: "#004225" ,
                     fontSize: 24,
                 }}
-            >
-                Tone
+                >
+                    Tone
                 <div
                     style={{
                         position: "relative",
@@ -111,18 +173,12 @@ export default function TonePopup({
                 </div>
                 <button
                     onClick={onClose}
-                    style={{
-                        marginLeft: "auto",
-                        border: "none",
-                        background: "#fff",
-                        color: "black",
-                        cursor: "pointer",
-                    }}
+                    style={closeButtonStyle}
                 >
                     <FontAwesomeIcon icon={faXmark} />
                 </button>
             </div>
-            {!authRequired && <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
                 <ToneLevelButton
                     label="Casual"
                     active={tone==="casual"}
@@ -138,7 +194,7 @@ export default function TonePopup({
                     active={tone==="formal"}
                     onClick={() => onToneSelect("formal")}
                 />
-            </div>}
+            </div>
             <div
                 style={{
                     marginTop: 12,
@@ -153,12 +209,6 @@ export default function TonePopup({
                     wordBreak: "break-word",
                 }}
             >
-                {authRequired && (
-                    errorMessage
-                        ?? "Sign in required to rewrite text. Connect your account to keep using Tone."
-                )}
-                {!authRequired && (
-                    <>
                 {loading && rewrittenText && rewrittenText}
                 {loading && !rewrittenText && "Rewriting..."}
                 {!loading && showRefresh && (
@@ -167,47 +217,52 @@ export default function TonePopup({
                         : "Input changed and no saved rewrite exists for this tone. Click refresh to rewrite current input."
                 )}
                 {!loading && !showRefresh && rewrittenText}
-                    </>
-                )}
             </div>
-            {authRequired && (
-                <button
-                    onClick={onConnectAccount}
-                    style={{
-                        marginTop: 12,
-                        width: "100%",
-                        padding: 10,
-                        borderRadius: 10,
-                        border: "none",
-                        background: theme.colors.primary,
-                        color: "white",
-                        cursor: "pointer",
-                    }}
-                >
-                    Connect Account
-                </button>
-            )}
-            {!authRequired && (
             <button
                 onClick={onApply}
                 disabled={!rewrittenText || showRefresh || loading}
-                style={{
-                    marginTop: 12,
-                    width: "100%",
-                    padding: 10,
-                    borderRadius: 10,
-                    border: "none",
-                    background: theme.colors.primary,
-                    color: "white",
-                    cursor: "pointer",
-                }}
+                style={primaryButtonStyle}
             >
                 Apply
             </button>
-            )}
         </div>
     )
 }
+
+function popupStyle(x: number, y: number) {
+    return {
+        position: "absolute" as const,
+        left: x - 300,
+        top: y,
+        transform: "translateY(-100%)",
+        width: 300,
+        padding: 14,
+        borderRadius: 14,
+        background: "white",
+        border: "1px solid #ddd",
+        boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
+        zIndex: 999999,
+    };
+}
+
+const closeButtonStyle = {
+    marginLeft: "auto",
+    border: "none",
+    background: "#fff",
+    color: "black",
+    cursor: "pointer",
+} as const;
+
+const primaryButtonStyle = {
+    marginTop: 12,
+    width: "100%",
+    padding: 10,
+    borderRadius: 10,
+    border: "none",
+    background: theme.colors.primary,
+    color: "white",
+    cursor: "pointer",
+} as const;
 
 function ToneLevelButton({
     label,
