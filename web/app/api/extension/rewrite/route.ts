@@ -111,49 +111,87 @@ export async function POST(req: Request) {
                 : trimmedText;
         const safeTone = tone ?? "business";
 
-        const response = await client.responses.create({
-            model: "gpt-5-nano",
-            input: [
-                {
-                    role: "system",
-                    content: `Rewrite text in a ${safeTone} tone. Return only the rewritten text.`,
-                },
-                {
-                    role: "user",
-                    content: `Tone: ${safeTone}\n\nText:\n${boundedText}`,
+        const encoder = new TextEncoder();
+        let streamedText = "";
+        let firstTokenAt: number | null = null;
+
+        const stream = new ReadableStream<Uint8Array>({
+            async start(controller) {
+                try {
+                    const response = await client.responses.create({
+                        model: "gpt-5-nano",
+                        stream: true,
+                        input: [
+                            {
+                                role: "system",
+                                content: `Rewrite text in a ${safeTone} tone. Return only the rewritten text.`,
+                            },
+                            {
+                                role: "user",
+                                content: `Tone: ${safeTone}\n\nText:\n${boundedText}`,
+                            }
+                        ]
+                    });
+
+                    for await (const event of response) {
+                        if (event.type === "response.output_text.delta") {
+                            if (firstTokenAt === null) {
+                                firstTokenAt = Date.now();
+                                console.log("rewrite first token", {
+                                    userId: authPayload.sub,
+                                    tone: safeTone,
+                                    inputChars: boundedText.length,
+                                    timeToFirstTokenMs: firstTokenAt - startedAt,
+                                });
+                            }
+
+                            streamedText += event.delta;
+                            controller.enqueue(encoder.encode(event.delta));
+                            continue;
+                        }
+
+                        if (event.type === "response.completed") {
+                            console.log("openai usage", {
+                                inputTokens: event.response.usage?.input_tokens,
+                                outputTokens: event.response.usage?.output_tokens,
+                                totalTokens: event.response.usage?.total_tokens,
+                            });
+                        }
+                    }
+
+                    const rewritten = streamedText.trim();
+                    if (!rewritten) {
+                        throw new Error("OpenAI did not return rewritten text");
+                    }
+
+                    const elapsedMs = Date.now() - startedAt;
+                    console.log("rewrite completed", {
+                        userId: authPayload.sub,
+                        tone: safeTone,
+                        inputChars: boundedText.length,
+                        timeToFirstTokenMs:
+                            firstTokenAt === null ? null : firstTokenAt - startedAt,
+                        elapsedMs,
+                        outputChars: rewritten.length,
+                    });
+
+                    controller.close();
+                } catch (err) {
+                    console.error("rewrite stream failed", {
+                        elapsedMs: Date.now() - startedAt,
+                        err,
+                    });
+                    controller.error(err);
                 }
-            ]
+            },
         });
 
-        console.log("openai usage", {
-            inputTokens: response.usage?.input_tokens,
-            outputTokens: response.usage?.output_tokens,
-            totalTokens: response.usage?.total_tokens,
+        return new Response(stream, {
+            headers: {
+                "Content-Type": "text/plain; charset=utf-8",
+                "Cache-Control": "no-cache, no-transform",
+            },
         });
-
-        const rewritten = response.output_text?.trim();
-
-        if (!rewritten) {
-            console.log("openai empty output_text", {
-                id: response.id,
-                status: response.status,
-                outputLength: response.output?.length ?? 0,
-            });
-            return NextResponse.json(
-                { error: "OpenAI did not return rewritten text" },
-                { status: 502 },
-            );
-        }
-
-        const elapsedMs = Date.now() - startedAt;
-        console.log("rewrite completed", {
-            userId: authPayload.sub,
-            tone: safeTone,
-            inputChars: boundedText.length,
-            elapsedMs,
-        });
-
-        return NextResponse.json({ rewrittenText: rewritten });
     } catch (err) {
         console.error("rewrite failed", {
             elapsedMs: Date.now() - startedAt,
