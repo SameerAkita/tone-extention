@@ -2,6 +2,8 @@ import { OpenAI } from "openai";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 
+import { createAdminClient } from "@/lib/supabase/admin";
+
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
@@ -14,6 +16,10 @@ type ExtensionTokenPayload = {
     iat: number;
     exp: number;
     jti?: string;
+};
+
+type ProfileAccessRecord = {
+    stripe_subscription_status: string | null;
 };
 
 function fromBase64Url(input: string) {
@@ -85,6 +91,42 @@ export async function POST(req: Request) {
     } catch (err) {
         console.log("auth failed", err);
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    try {
+        const admin = createAdminClient();
+        const { data: profile, error: profileError } = await admin
+            .from("profiles")
+            .select("stripe_subscription_status")
+            .eq("id", authPayload.sub)
+            .maybeSingle<ProfileAccessRecord>();
+
+        if (profileError) {
+            console.error("profile lookup failed", {
+                userId: authPayload.sub,
+                profileError,
+            });
+            return NextResponse.json(
+                { error: "Failed to verify subscription" },
+                { status: 500 },
+            );
+        }
+
+        if (!hasRewriteAccess(profile?.stripe_subscription_status)) {
+            return NextResponse.json(
+                { error: "An active subscription or trial is required to rewrite text." },
+                { status: 403 },
+            );
+        }
+    } catch (err) {
+        console.error("subscription check failed", {
+            userId: authPayload.sub,
+            err,
+        });
+        return NextResponse.json(
+            { error: "Failed to verify subscription" },
+            { status: 500 },
+        );
     }
 
     const startedAt = Date.now();
@@ -202,4 +244,8 @@ export async function POST(req: Request) {
             { status: 500 },
         )
     }
+}
+
+function hasRewriteAccess(subscriptionStatus: string | null | undefined) {
+    return subscriptionStatus === "trialing" || subscriptionStatus === "active";
 }
