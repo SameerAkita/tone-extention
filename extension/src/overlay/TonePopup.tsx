@@ -13,12 +13,14 @@ type Props = {
     rewrittenText: string | null;
     showRefresh: boolean;
     authRequired: boolean;
+    billingRequired: boolean;
     errorMessage: string | null;
 
     onToneSelect: (tone: ToneLevel) => void;
     onRefresh: () => void;
     onApply: () => void;
     onConnectAccount: () => void;
+    onOpenBilling: () => void;
     onClose: () => void;
 };
 
@@ -30,11 +32,13 @@ export default function TonePopup({
     rewrittenText,
     showRefresh,
     authRequired,
+    billingRequired,
     errorMessage,
     onToneSelect,
     onRefresh,
     onApply,
     onConnectAccount,
+    onOpenBilling,
     onClose,
 }: Props) {
     const [hover, setHover] = useState(false);
@@ -107,6 +111,80 @@ export default function TonePopup({
                         style={primaryButtonStyle}
                     >
                         Connect Account
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (billingRequired) {
+        return (
+            <div
+                data-tone-popup="true"
+                style={popupStyle(x, y)}
+            >
+                <button
+                    onClick={onClose}
+                    style={closeButtonStyle}
+                >
+                    <FontAwesomeIcon icon={faXmark} />
+                </button>
+
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        textAlign: "center",
+                        gap: 14,
+                        paddingTop: 8,
+                    }}
+                >
+                    <div
+                        style={{
+                            width: 56,
+                            height: 56,
+                            borderRadius: 18,
+                            background: theme.colors.primary,
+                            color: "white",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 24,
+                            fontWeight: 700,
+                            boxShadow: "0 10px 20px rgba(0,66,37,0.18)",
+                        }}
+                    >
+                        T
+                    </div>
+                    <div
+                        style={{
+                            fontSize: 24,
+                            fontWeight: 700,
+                            color: theme.colors.primary,
+                            lineHeight: 1,
+                        }}
+                    >
+                        Tone
+                    </div>
+                    <div
+                        style={{
+                            padding: "12px 14px",
+                            borderRadius: 12,
+                            background: "#f7f7f7",
+                            color: "#2f2f2f",
+                            fontSize: 13,
+                            lineHeight: 1.5,
+                        }}
+                    >
+                        {errorMessage
+                            ?? "A paid subscription or trial is required to rewrite text. Open pricing to subscribe or manage billing."}
+                    </div>
+                    <button
+                        onClick={onOpenBilling}
+                        style={primaryButtonStyle}
+                    >
+                        View Plans
                     </button>
                 </div>
             </div>

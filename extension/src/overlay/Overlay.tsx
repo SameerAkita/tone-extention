@@ -15,6 +15,7 @@ export default function Overlay() {
     const [buttonPos, setButtonPos] = useState<{ x: number; y: number } | null>(null);
     const [showRefresh, setShowRefresh] = useState(false);
     const [authRequired, setAuthRequired] = useState(false);
+    const [billingRequired, setBillingRequired] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const activeBoxRef = useRef<HTMLElement | null>(null);
@@ -118,6 +119,7 @@ export default function Overlay() {
         rewriteRequestIdRef.current = requestId;
 
         setAuthRequired(false);
+        setBillingRequired(false);
         setErrorMessage(null);
         setRewrittenText("");
         setLoading(true);
@@ -137,6 +139,8 @@ export default function Overlay() {
                     setErrorMessage(error);
                     if (isAuthError(error)) {
                         setAuthRequired(true);
+                    } else if (isBillingError(error)) {
+                        setBillingRequired(true);
                     }
                 }
                 return;
@@ -207,6 +211,10 @@ export default function Overlay() {
         window.open(`${WEB_ORIGIN}/connect-extension`, "_blank", "noopener,noreferrer");
     }
 
+    function handleOpenBilling() {
+        window.open(`${WEB_ORIGIN}/pricing`, "_blank", "noopener,noreferrer");
+    }
+
     async function handleToneChange(newTone: ToneLevel) {
         setTone(newTone);
         if (showRefresh) {
@@ -247,11 +255,13 @@ export default function Overlay() {
                     rewrittenText={rewrittenText}
                     showRefresh={showRefresh}
                     authRequired={authRequired}
+                    billingRequired={billingRequired}
                     errorMessage={errorMessage}
                     onToneSelect={handleToneChange}
                     onRefresh={handleRefresh}
                     onApply={applyRewrite}
                     onConnectAccount={handleConnectAccount}
+                    onOpenBilling={handleOpenBilling}
                     onClose={closePopup}
                 />
             )}
@@ -264,4 +274,11 @@ function isAuthError(error: string) {
     return normalized.includes("not signed in")
         || normalized.includes("connect your account")
         || normalized.includes("unauthorized");
+}
+
+function isBillingError(error: string) {
+    const normalized = error.toLowerCase();
+    return normalized.includes("active subscription or trial is required")
+        || normalized.includes("subscription required")
+        || normalized.includes("trial is required");
 }
