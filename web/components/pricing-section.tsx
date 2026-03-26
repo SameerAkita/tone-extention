@@ -1,4 +1,5 @@
 import { PricingCard } from "./pricing-card";
+import { PricingActionButton } from "./pricing-action-button";
 
 export function PricingSection() {
   return (
@@ -18,7 +19,9 @@ export function PricingSection() {
             price="¥1200"
             period="/month"
             ctaLabel="Start free trial"
-            ctaHref="/auth/sign-up"
+            cta={
+              <PricingActionButton billingInterval="month" />
+            }
             features={[
               "Unlimited rewrites",
               "Basic tone presets",
@@ -32,7 +35,9 @@ export function PricingSection() {
             price="¥1000"
             period="/month"
             ctaLabel="Start free trial"
-            ctaHref="/auth/sign-up"
+            cta={
+              <PricingActionButton billingInterval="year" isPopular />
+            }
             features={[
               "Unlimited rewrites",
               "Basic tone presets",

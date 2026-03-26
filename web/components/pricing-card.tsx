@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   Card,
   CardContent,
@@ -18,7 +19,8 @@ type PricingCardProps = {
   price: string;
   period?: string;
   ctaLabel: string;
-  ctaHref: string;
+  ctaHref?: string;
+  cta?: ReactNode;
   features: string[];
   isPopular?: boolean;
 };
@@ -30,6 +32,7 @@ export function PricingCard({
   period = "/month",
   ctaLabel,
   ctaHref,
+  cta,
   features,
   isPopular = false,
 }: PricingCardProps) {
@@ -74,13 +77,17 @@ export function PricingCard({
       </CardContent>
 
       <CardFooter>
-        <Button
-          asChild
-          className="w-full"
-          variant={isPopular ? "default" : "outline"}
-        >
-          <Link href={ctaHref}>{ctaLabel}</Link>
-        </Button>
+        {cta ? (
+          cta
+        ) : (
+          <Button
+            asChild
+            className="w-full"
+            variant={isPopular ? "default" : "outline"}
+          >
+            <Link href={ctaHref ?? "/pricing"}>{ctaLabel}</Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
