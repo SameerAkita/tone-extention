@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { rewriteRateLimit } from "@/lib/rate-limit";
 
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -91,6 +92,19 @@ export async function POST(req: Request) {
     } catch (err) {
         console.log("auth failed", err);
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    
+    const { success, reset } = await rewriteRateLimit.limit(`rewrite:${authPayload.sub}`);
+    if (!success) {
+        return NextResponse.json(
+            { error: "Rate limit exceeded. Please try again shortly." },
+            {
+                status: 429,
+                headers: {
+                    "Retry-After": String(Math.max(1, Math.ceil((reset - Date.now()) / 1000))),
+                },
+            },
+        );
     }
 
     try {
