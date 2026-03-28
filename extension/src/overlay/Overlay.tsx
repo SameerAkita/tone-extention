@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { getActiveTextbox, getTextboxText, pasteText } from "../content/textbox";
 import ToneButton from "./ToneButton";
-import { rewriteText } from "../api/rewrite";
+import { startRewriteTextStream } from "../api/rewrite";
 import TonePopup from "./TonePopup";
 import { WEB_ORIGIN } from "../config/runtime";
 
@@ -16,6 +16,8 @@ export default function Overlay() {
     const [showRefresh, setShowRefresh] = useState(false);
     const [authRequired, setAuthRequired] = useState(false);
     const [billingRequired, setBillingRequired] = useState(false);
+    const [rateLimitUntilMs, setRateLimitUntilMs] = useState<number | null>(null);
+    const [countdownNowMs, setCountdownNowMs] = useState(() => Date.now());
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const activeBoxRef = useRef<HTMLElement | null>(null);
@@ -24,6 +26,7 @@ export default function Overlay() {
     const rewriteCacheRef = useRef<Map<string, string>>(new Map());
     const popupOpenRef = useRef(false); // ref to check state in useEffect that tracks typing - TODO: create useTextboxTracker hook to manage inputText, cachedText etc
     const rewriteRequestIdRef = useRef(0);
+    const cancelRewriteRef = useRef<(() => void) | null>(null);
 
     function getCacheKey(text: string, toneLevel: ToneLevel) {
         return `${toneLevel}::${text}`;
@@ -42,6 +45,30 @@ export default function Overlay() {
     useEffect(() => {
         popupOpenRef.current = popupOpen;
     }, [popupOpen])
+
+    useEffect(() => {
+        if (!rateLimitUntilMs) return;
+
+        if (rateLimitUntilMs <= Date.now()) {
+            setRateLimitUntilMs(null);
+            return;
+        }
+
+        const intervalId = window.setInterval(() => {
+            setCountdownNowMs(Date.now());
+        }, 250);
+
+        return () => {
+            window.clearInterval(intervalId);
+        };
+    }, [rateLimitUntilMs]);
+
+    useEffect(() => {
+        if (!rateLimitUntilMs) return;
+        if (countdownNowMs >= rateLimitUntilMs) {
+            setRateLimitUntilMs(null);
+        }
+    }, [countdownNowMs, rateLimitUntilMs]);
 
     // detect textbox focus
     useEffect(() => {
@@ -103,6 +130,10 @@ export default function Overlay() {
     }, []);
 
     async function runRewrite(toneLevel: ToneLevel) {
+        if (rateLimitUntilMs && rateLimitUntilMs > Date.now()) {
+            return;
+        }
+
         const text = inputTextRef.current.trim();
         if (!text) return;
 
@@ -117,14 +148,16 @@ export default function Overlay() {
 
         const requestId = rewriteRequestIdRef.current + 1;
         rewriteRequestIdRef.current = requestId;
+        cancelRewriteRef.current?.();
 
         setAuthRequired(false);
         setBillingRequired(false);
+        setRateLimitUntilMs(null);
         setErrorMessage(null);
         setRewrittenText("");
         setLoading(true);
         try {
-            const { rewrittenText, error } = await rewriteText(
+            const stream = startRewriteTextStream(
                 text,
                 toneLevel,
                 (chunk) => {
@@ -132,7 +165,13 @@ export default function Overlay() {
                     setRewrittenText((current) => `${current ?? ""}${chunk}`);
                 },
             );
+            cancelRewriteRef.current = stream.cancel;
+
+            const { rewrittenText, error, retryAfterSeconds } = await stream.promise;
             if (error) {
+                if (error === "Request cancelled") {
+                    return;
+                }
                 console.error("Rewrite failed:", error);
                 if (rewriteRequestIdRef.current === requestId) {
                     setRewrittenText(null);
@@ -141,6 +180,9 @@ export default function Overlay() {
                         setAuthRequired(true);
                     } else if (isBillingError(error)) {
                         setBillingRequired(true);
+                    } else if (isRateLimitError(error)) {
+                        const cooldownSeconds = Math.max(1, retryAfterSeconds ?? 1);
+                        setRateLimitUntilMs(Date.now() + cooldownSeconds * 1000);
                     }
                 }
                 return;
@@ -163,6 +205,9 @@ export default function Overlay() {
             cachedTextRef.current = text;
             setShowRefresh(false);
         } finally {
+            if (rewriteRequestIdRef.current === requestId) {
+                cancelRewriteRef.current = null;
+            }
             if (rewriteRequestIdRef.current === requestId) {
                 setLoading(false);
             }
@@ -190,6 +235,7 @@ export default function Overlay() {
     }
     
     function closePopup() {
+        cancelRewriteRef.current?.();
         setPopupOpen(false);
         setShowRefresh(false);
 
@@ -256,6 +302,10 @@ export default function Overlay() {
                     showRefresh={showRefresh}
                     authRequired={authRequired}
                     billingRequired={billingRequired}
+                    rateLimitedSecondsRemaining={getRateLimitedSecondsRemaining(
+                        rateLimitUntilMs,
+                        countdownNowMs,
+                    )}
                     errorMessage={errorMessage}
                     onToneSelect={handleToneChange}
                     onRefresh={handleRefresh}
@@ -281,4 +331,19 @@ function isBillingError(error: string) {
     return normalized.includes("active subscription or trial is required")
         || normalized.includes("subscription required")
         || normalized.includes("trial is required");
+}
+
+function isRateLimitError(error: string) {
+    return error.toLowerCase().includes("rate limit exceeded");
+}
+
+function getRateLimitedSecondsRemaining(
+    rateLimitUntilMs: number | null,
+    nowMs: number,
+) {
+    if (!rateLimitUntilMs) {
+        return null;
+    }
+
+    return Math.max(1, Math.ceil((rateLimitUntilMs - nowMs) / 1000));
 }

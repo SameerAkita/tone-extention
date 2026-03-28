@@ -95,6 +95,14 @@ async function streamRewrite(
     tone: string,
 ) {
     const startedAt = Date.now();
+    const abortController = new AbortController();
+    let disconnected = false;
+
+    port.onDisconnect.addListener(() => {
+        disconnected = true;
+        abortController.abort();
+    });
+
     try {
         const authToken = await getAuthToken();
         if (!authToken) {
@@ -109,6 +117,7 @@ async function streamRewrite(
                 "Authorization": `Bearer ${authToken}`,
             },
             body: JSON.stringify({ text, tone }),
+            signal: abortController.signal,
         });
 
         const contentType = res.headers.get("content-type") ?? "";
@@ -117,6 +126,9 @@ async function streamRewrite(
             const data = contentType.includes("application/json")
                 ? await res.json().catch(() => null)
                 : null;
+            const retryAfterSeconds = parseRetryAfterSeconds(
+                res.headers.get("retry-after"),
+            );
             port.postMessage({
                 type: "error",
                 error:
@@ -124,6 +136,7 @@ async function streamRewrite(
                     ?? (contentType.includes("text/html")
                         ? "Rewrite endpoint returned an HTML page instead of rewrite text."
                         : `Rewrite failed with status ${res.status}`),
+                retryAfterSeconds,
             });
             return;
         }
@@ -163,13 +176,17 @@ async function streamRewrite(
             }
 
             rewrittenText += chunk;
-            port.postMessage({ type: "chunk", chunk });
+            if (!disconnected) {
+                port.postMessage({ type: "chunk", chunk });
+            }
         }
 
         const finalChunk = decoder.decode();
         if (finalChunk) {
             rewrittenText += finalChunk;
-            port.postMessage({ type: "chunk", chunk: finalChunk });
+            if (!disconnected) {
+                port.postMessage({ type: "chunk", chunk: finalChunk });
+            }
         }
 
         console.log("extension rewrite completed", {
@@ -181,11 +198,31 @@ async function streamRewrite(
             elapsedMs: Date.now() - startedAt,
         });
 
-        port.postMessage({ type: "done", rewrittenText });
+        if (!disconnected) {
+            port.postMessage({ type: "done", rewrittenText });
+        }
     } catch (err) {
+        if (abortController.signal.aborted) {
+            console.log("rewrite aborted", { tone, inputChars: text.length });
+            return;
+        }
+
         console.log("rewrite failed: ", err);
-        port.postMessage({ type: "error", error: "Backend call failed" });
+        if (!disconnected) {
+            port.postMessage({ type: "error", error: "Backend call failed" });
+        }
     }
+}
+
+function parseRetryAfterSeconds(value: string | null) {
+    if (!value) return undefined;
+
+    const seconds = Number(value);
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+        return undefined;
+    }
+
+    return Math.ceil(seconds);
 }
 
 function getAuthToken(): Promise<string | null> {

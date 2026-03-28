@@ -5,6 +5,6 @@ const redis = Redis.fromEnv();
 
 export const rewriteRateLimit = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(10, "10 s"),
+    limiter: Ratelimit.slidingWindow(2, "5 s"),
     analytics: true,
 });

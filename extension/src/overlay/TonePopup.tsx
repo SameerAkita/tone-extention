@@ -14,6 +14,7 @@ type Props = {
     showRefresh: boolean;
     authRequired: boolean;
     billingRequired: boolean;
+    rateLimitedSecondsRemaining: number | null;
     errorMessage: string | null;
 
     onToneSelect: (tone: ToneLevel) => void;
@@ -33,6 +34,7 @@ export default function TonePopup({
     showRefresh,
     authRequired,
     billingRequired,
+    rateLimitedSecondsRemaining,
     errorMessage,
     onToneSelect,
     onRefresh,
@@ -185,6 +187,83 @@ export default function TonePopup({
                         style={primaryButtonStyle}
                     >
                         View Plans
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (rateLimitedSecondsRemaining !== null) {
+        return (
+            <div
+                data-tone-popup="true"
+                style={popupStyle(x, y)}
+            >
+                <button
+                    onClick={onClose}
+                    style={closeButtonStyle}
+                >
+                    <FontAwesomeIcon icon={faXmark} />
+                </button>
+
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        textAlign: "center",
+                        gap: 14,
+                        paddingTop: 8,
+                    }}
+                >
+                    <div
+                        style={{
+                            width: 56,
+                            height: 56,
+                            borderRadius: 18,
+                            background: theme.colors.primary,
+                            color: "white",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 24,
+                            fontWeight: 700,
+                            boxShadow: "0 10px 20px rgba(0,66,37,0.18)",
+                        }}
+                    >
+                        T
+                    </div>
+                    <div
+                        style={{
+                            fontSize: 24,
+                            fontWeight: 700,
+                            color: theme.colors.primary,
+                            lineHeight: 1,
+                        }}
+                    >
+                        Tone
+                    </div>
+                    <div
+                        style={{
+                            padding: "12px 14px",
+                            borderRadius: 12,
+                            background: "#f7f7f7",
+                            color: "#2f2f2f",
+                            fontSize: 13,
+                            lineHeight: 1.5,
+                        }}
+                    >
+                        Too many rewrites in a short time. Try again in {rateLimitedSecondsRemaining}s.
+                    </div>
+                    <button
+                        disabled
+                        style={{
+                            ...primaryButtonStyle,
+                            cursor: "not-allowed",
+                            opacity: 0.75,
+                        }}
+                    >
+                        Try again in {rateLimitedSecondsRemaining}s
                     </button>
                 </div>
             </div>

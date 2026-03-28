@@ -94,19 +94,6 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     
-    const { success, reset } = await rewriteRateLimit.limit(`rewrite:${authPayload.sub}`);
-    if (!success) {
-        return NextResponse.json(
-            { error: "Rate limit exceeded. Please try again shortly." },
-            {
-                status: 429,
-                headers: {
-                    "Retry-After": String(Math.max(1, Math.ceil((reset - Date.now()) / 1000))),
-                },
-            },
-        );
-    }
-
     try {
         const admin = createAdminClient();
         const { data: profile, error: profileError } = await admin
@@ -139,6 +126,30 @@ export async function POST(req: Request) {
         });
         return NextResponse.json(
             { error: "Failed to verify subscription" },
+            { status: 500 },
+        );
+    }
+
+    try {
+        const { success, reset } = await rewriteRateLimit.limit(`rewrite:${authPayload.sub}`);
+        if (!success) {
+            return NextResponse.json(
+                { error: "Rate limit exceeded. Please try again shortly." },
+                {
+                    status: 429,
+                    headers: {
+                        "Retry-After": String(Math.max(1, Math.ceil((reset - Date.now()) / 1000))),
+                    },
+                },
+            );
+        }
+    } catch (err) {
+        console.error("rate limit check failed", {
+            userId: authPayload.sub,
+            err,
+        });
+        return NextResponse.json(
+            { error: "Failed to enforce rate limit" },
             { status: 500 },
         );
     }
