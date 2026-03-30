@@ -12,3 +12,4 @@ Next.js backend
 Chrome Extension
 Supabase Auth
 OpenAI API
+<img width="561" height="370" alt="Screenshot 2026-03-30 at 14 29 46" src="https://github.com/user-attachments/assets/ff8fd756-b06d-4ac1-87a9-f4899518ba2c" />
