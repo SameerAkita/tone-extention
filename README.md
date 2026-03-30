@@ -1,4 +1,4 @@
-Chrome extension that rewrites text into different tones (business, formal, etc.)
+Chrome extension that rewrites rough English text into Business Japanese in various tones (business, formal, etc.)
 
 Features:
 
