@@ -191,7 +191,7 @@ export async function POST(req: Request) {
                         input: [
                             {
                                 role: "system",
-                                content: `Rewrite text in a ${safeTone} tone. Return only the rewritten text.`,
+                                content: `Rewrite text in business Japanese in a ${safeTone} tone. Return only the rewritten text.`,
                             },
                             {
                                 role: "user",
