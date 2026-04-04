@@ -32,6 +32,14 @@ window.addEventListener("message", (event) => {
     const data = event.data as { type?: string; token?: string } | null;
     if (!data) return;
 
+    if (data.type === "TONE_EXTENSION_PING") {
+        window.postMessage(
+            { type: "TONE_EXTENSION_PONG" },
+            event.origin,
+        );
+        return;
+    }
+
     if (data.type === "TONE_EXTENSION_AUTH_CLEAR") {
         const runtime = globalThis.chrome?.runtime;
         if (!runtime?.sendMessage) {

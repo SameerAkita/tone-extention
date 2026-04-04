@@ -1,13 +1,17 @@
+import type { ReactNode } from "react";
+
 type DashboardPlaceholderProps = {
   eyebrow: string;
   title: string;
   description: string;
+  children?: ReactNode;
 };
 
 export function DashboardPlaceholder({
   eyebrow,
   title,
   description,
+  children,
 }: DashboardPlaceholderProps) {
   return (
     <div className="rounded-[28px] border border-dashed border-primary/20 bg-[linear-gradient(180deg,rgba(0,66,37,0.04),rgba(255,255,255,0.98))] p-8 sm:p-10">
@@ -20,6 +24,7 @@ export function DashboardPlaceholder({
       <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
         {description}
       </p>
+      {children ? <div className="mt-4">{children}</div> : null}
     </div>
   );
 }
