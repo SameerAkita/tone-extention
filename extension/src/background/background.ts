@@ -41,6 +41,14 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         return true;
     }
 
+    if (msg.type === "EXT_AUTH_STATUS") {
+        void (async () => {
+            const authToken = await getAuthToken();
+            sendResponse({ connected: Boolean(authToken) });
+        })();
+        return true;
+    }
+
     if (msg.type !== "REWRITE") return;
 
     console.log("Rewrite request received: ", msg);

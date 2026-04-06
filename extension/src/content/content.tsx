@@ -40,6 +40,45 @@ window.addEventListener("message", (event) => {
         return;
     }
 
+    if (data.type === "TONE_EXTENSION_CONNECTION_PING") {
+        const storage = globalThis.chrome?.storage?.local;
+        if (!storage?.get) {
+            window.postMessage(
+                {
+                    type: "TONE_EXTENSION_CONNECTION_STATUS",
+                    connected: false,
+                    error: "Extension storage is unavailable on this page.",
+                },
+                event.origin,
+            );
+            return;
+        }
+
+        storage.get(["authToken"], (result) => {
+            const storageError = globalThis.chrome?.runtime?.lastError?.message;
+            if (storageError) {
+                window.postMessage(
+                    {
+                        type: "TONE_EXTENSION_CONNECTION_STATUS",
+                        connected: false,
+                        error: storageError,
+                    },
+                    event.origin,
+                );
+                return;
+            }
+
+            window.postMessage(
+                {
+                    type: "TONE_EXTENSION_CONNECTION_STATUS",
+                    connected: typeof result.authToken === "string" && result.authToken.trim().length > 0,
+                },
+                event.origin,
+            );
+        });
+        return;
+    }
+
     if (data.type === "TONE_EXTENSION_AUTH_CLEAR") {
         const runtime = globalThis.chrome?.runtime;
         if (!runtime?.sendMessage) {
