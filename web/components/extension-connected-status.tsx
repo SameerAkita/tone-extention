@@ -7,16 +7,32 @@ export function ExtensionConnectedStatus() {
 
   useEffect(() => {
     let isActive = true;
-
-    const timeoutId = window.setTimeout(() => {
-      if (!isActive) return;
-      window.removeEventListener("message", onMessage);
-      setStatus("Extension not connected");
-    }, 1000);
+    let attemptCount = 0;
+    let pollTimeoutId: number | null = null;
 
     function cleanup() {
-      window.clearTimeout(timeoutId);
+      if (pollTimeoutId !== null) {
+        window.clearTimeout(pollTimeoutId);
+      }
       window.removeEventListener("message", onMessage);
+    }
+
+    function sendPing() {
+      if (!isActive) return;
+
+      attemptCount += 1;
+      window.postMessage(
+        { type: "TONE_EXTENSION_CONNECTION_PING" },
+        window.location.origin,
+      );
+
+      if (attemptCount >= 8) {
+        setStatus("Extension not connected");
+        cleanup();
+        return;
+      }
+
+      pollTimeoutId = window.setTimeout(sendPing, 400);
     }
 
     function onMessage(event: MessageEvent) {
@@ -38,10 +54,7 @@ export function ExtensionConnectedStatus() {
     }
 
     window.addEventListener("message", onMessage);
-    window.postMessage(
-      { type: "TONE_EXTENSION_CONNECTION_PING" },
-      window.location.origin,
-    );
+    sendPing();
 
     return () => {
       isActive = false;
