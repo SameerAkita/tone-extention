@@ -1,6 +1,6 @@
 import { Mail } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/components/logout-button";
 
 export default function DashboardAccountPage() {
   return (
@@ -29,8 +29,7 @@ export default function DashboardAccountPage() {
             </div>
           </div>
         </div>
-
-          <Button type="button">Log out</Button>
+        <LogoutButton />
       </div>
     </div>
   );
