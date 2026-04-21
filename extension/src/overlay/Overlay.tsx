@@ -6,6 +6,7 @@ import TonePopup from "./TonePopup";
 import { WEB_ORIGIN } from "../config/runtime";
 
 export type ToneLevel = "casual" | "business" | "formal";
+export type RegenerateOption = "polite" | "soft" | "short";
 
 export default function Overlay() {
     const [popupOpen, setPopupOpen] = useState(false);
@@ -297,6 +298,7 @@ export default function Overlay() {
                     x={buttonPos.x}
                     y={buttonPos.y}
                     tone={tone}
+                    regenerateOption="polite"
                     loading={loading}
                     rewrittenText={rewrittenText}
                     showRefresh={showRefresh}

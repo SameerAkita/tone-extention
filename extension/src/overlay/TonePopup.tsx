@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ToneLevel } from "./Overlay";
+import type { RegenerateOption, ToneLevel } from "./Overlay";
 import { theme } from "../constants/colors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons/faArrowsRotate";
@@ -9,6 +9,7 @@ type Props = {
     x: number;
     y: number;
     tone: ToneLevel;
+    regenerateOption: RegenerateOption | null;
     loading: boolean;
     rewrittenText: string | null;
     showRefresh: boolean;
@@ -29,6 +30,7 @@ export default function TonePopup({
     x,
     y,
     tone,
+    regenerateOption,
     loading,
     rewrittenText,
     showRefresh,
@@ -337,19 +339,36 @@ export default function TonePopup({
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
                 <ToneLevelButton
-                    label="Casual"
+                    label="Coworker"
                     active={tone==="casual"}
                     onClick={() => onToneSelect("casual")}
                 />
                 <ToneLevelButton
-                    label="Business"
+                    label="Boss"
                     active={tone==="business"}
                     onClick={() => onToneSelect("business")}
                 />
                 <ToneLevelButton
-                    label="Formal"
+                    label="Client"
                     active={tone==="formal"}
                     onClick={() => onToneSelect("formal")}
+                />
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                <RegenerateOptionButton
+                    label="More Polite"
+                    active={regenerateOption=="polite"}
+                    onClick={() => {}}
+                />
+                <RegenerateOptionButton
+                    label="Softer"
+                    active={regenerateOption=="soft"}
+                    onClick={() => {}}
+                />
+                <RegenerateOptionButton
+                    label="Shorter"
+                    active={regenerateOption=="short"}
+                    onClick={() => {}}
                 />
             </div>
             <div
@@ -442,6 +461,34 @@ function ToneLevelButton({
                 color: active ? "white" : "black",
                 cursor: "pointer",
                 fontSize: 13,
+            }}
+        >
+            {label}
+        </button>
+    );
+}
+
+function RegenerateOptionButton({
+    label,
+    active,
+    onClick,
+}: {
+    label: string,
+    active: boolean,
+    onClick: () => void,
+}) {
+    return (
+        <button
+            onClick={onClick}
+            style={{
+                flex: 1,
+                padding: "6px 8px",
+                borderRadius: 10,
+                border: active ? `1px solid ${theme.colors.primary}` : "1px solid #ddd",
+                // background: active ? theme.colors.primary : "#fff",
+                color: active ? theme.colors.primary : "black",
+                cursor: "pointer",
+                fontSize: 11,
             }}
         >
             {label}
