@@ -337,39 +337,52 @@ export default function TonePopup({
                     <FontAwesomeIcon icon={faXmark} />
                 </button>
             </div>
-            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-                <ToneLevelButton
-                    label="Coworker"
-                    active={tone==="casual"}
-                    onClick={() => onToneSelect("casual")}
-                />
-                <ToneLevelButton
-                    label="Boss"
-                    active={tone==="business"}
-                    onClick={() => onToneSelect("business")}
-                />
-                <ToneLevelButton
-                    label="Client"
-                    active={tone==="formal"}
-                    onClick={() => onToneSelect("formal")}
-                />
+            <div style={buttonSectionStyle}>
+                <p style={sectionLabelStyle}>Who are you writing to?</p>
+                <div style={buttonRowStyle}>
+                    <ToneLevelButton
+                        label="Coworker"
+                        active={tone==="casual"}
+                        onClick={() => onToneSelect("casual")}
+                    />
+                    <ToneLevelButton
+                        label="Boss"
+                        active={tone==="business"}
+                        onClick={() => onToneSelect("business")}
+                    />
+                    <ToneLevelButton
+                        label="Client"
+                        active={tone==="formal"}
+                        onClick={() => onToneSelect("formal")}
+                    />
+                </div>
             </div>
-            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-                <RegenerateOptionButton
-                    label="More Polite"
-                    active={regenerateOption=="polite"}
-                    onClick={() => {}}
-                />
-                <RegenerateOptionButton
-                    label="Softer"
-                    active={regenerateOption=="soft"}
-                    onClick={() => {}}
-                />
-                <RegenerateOptionButton
-                    label="Shorter"
-                    active={regenerateOption=="short"}
-                    onClick={() => {}}
-                />
+            <div style={buttonSectionStyle}>
+                <p style={sectionLabelStyle}>Make it:</p>
+                <div style={buttonRowStyle}>
+                    <RegenerateOptionButton
+                        label="More Polite"
+                        active={regenerateOption=="polite"}
+                        onClick={() => {}}
+                    />
+                    <RegenerateOptionButton
+                        label="Softer"
+                        active={regenerateOption=="soft"}
+                        onClick={() => {}}
+                    />
+                    <RegenerateOptionButton
+                        label="Shorter"
+                        active={regenerateOption=="short"}
+                        onClick={() => {}}
+                    />
+                </div>
+                <button
+                onClick={onApply}
+                disabled={!rewrittenText || showRefresh || loading}
+                style={secondaryButtonStyle}
+            >
+                Regenerate
+            </button>
             </div>
             <div
                 style={{
@@ -438,6 +451,35 @@ const primaryButtonStyle = {
     background: theme.colors.primary,
     color: "white",
     cursor: "pointer",
+} as const;
+
+const secondaryButtonStyle = {
+    marginTop: 12,
+    width: "100%",
+    padding: 10,
+    borderRadius: 10,
+    border: `1px solid ${theme.colors.primary}`,
+    background: "white",
+    color: theme.colors.primary,
+    cursor: "pointer",
+} as const;
+
+const buttonSectionStyle = {
+    marginTop: 10,
+} as const;
+
+const sectionLabelStyle = {
+    margin: 0,
+    marginBottom: 4,
+    fontSize: 11,
+    fontWeight: 600,
+    color: "#5f5f5f",
+    lineHeight: 1.3,
+} as const;
+
+const buttonRowStyle = {
+    display: "flex",
+    gap: 8,
 } as const;
 
 function ToneLevelButton({
