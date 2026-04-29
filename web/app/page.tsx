@@ -1,9 +1,9 @@
-import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Hero } from "@/components/hero";
 import { PricingSection } from "@/components/pricing-section";
 import Navbar from "@/components/navbar";
 import { MessagesRewrittenSection } from "@/components/messages-rewritten-section";
 import { FAQSection } from "@/components/faq-section";
+import { SiteFooter } from "@/components/site-footer";
 
 export default function Home() {
   return (
@@ -18,22 +18,8 @@ export default function Home() {
             <FAQSection />
           </div>
         </div>
-
-        <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-10">
-          <p>
-            Powered by{" "}
-            <a
-              href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-              target="_blank"
-              className="font-bold hover:underline"
-              rel="noreferrer"
-            >
-              Supabase
-            </a>
-          </p>
-          <ThemeSwitcher />
-        </footer>
       </div>
+      <SiteFooter />
     </main>
   );
 }

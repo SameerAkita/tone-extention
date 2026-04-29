@@ -14,7 +14,6 @@ export default function Overlay() {
     const [rewrittenText, setRewrittenText] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [buttonPos, setButtonPos] = useState<{ x: number; y: number } | null>(null);
-    const [showRefresh, setShowRefresh] = useState(false);
     const [authRequired, setAuthRequired] = useState(false);
     const [billingRequired, setBillingRequired] = useState(false);
     const [rateLimitUntilMs, setRateLimitUntilMs] = useState<number | null>(null);
@@ -25,7 +24,6 @@ export default function Overlay() {
     const inputTextRef = useRef("");
     const cachedTextRef = useRef("");
     const rewriteCacheRef = useRef<Map<string, string>>(new Map());
-    const popupOpenRef = useRef(false); // ref to check state in useEffect that tracks typing - TODO: create useTextboxTracker hook to manage inputText, cachedText etc
     const rewriteRequestIdRef = useRef(0);
     const cancelRewriteRef = useRef<(() => void) | null>(null);
 
@@ -42,10 +40,6 @@ export default function Overlay() {
             y: rect.bottom + window.scrollY - 35,
         })
     }
-
-    useEffect(() => {
-        popupOpenRef.current = popupOpen;
-    }, [popupOpen])
 
     useEffect(() => {
         if (!rateLimitUntilMs) return;
@@ -103,7 +97,6 @@ export default function Overlay() {
         };
     }, []);
 
-    // Typing listener
     useEffect(() => {
         function handleTyping(e: Event) {
             requestAnimationFrame(() => {
@@ -113,21 +106,16 @@ export default function Overlay() {
                 if (!box.contains(e.target as Node)) return;
 
                 inputTextRef.current = getTextboxText(box);
-
-                if (popupOpenRef.current && inputTextRef.current !== cachedTextRef.current) {
-                    setShowRefresh(true);
-                }
             });
         }
 
         document.addEventListener("beforeinput", handleTyping, true);
-        document.addEventListener("input", handleTyping, true)
+        document.addEventListener("input", handleTyping, true);
 
         return () => {
             document.removeEventListener("beforeinput", handleTyping, true);
             document.removeEventListener("input", handleTyping, true);
-
-        }
+        };
     }, []);
 
     async function runRewrite(toneLevel: ToneLevel) {
@@ -143,7 +131,6 @@ export default function Overlay() {
         if (cachedRewrite) {
             setRewrittenText(cachedRewrite);
             cachedTextRef.current = text;
-            setShowRefresh(false);
             return;
         }
 
@@ -204,7 +191,6 @@ export default function Overlay() {
             setRewrittenText(rewrittenText);
             rewriteCacheRef.current.set(cacheKey, rewrittenText);
             cachedTextRef.current = text;
-            setShowRefresh(false);
         } finally {
             if (rewriteRequestIdRef.current === requestId) {
                 cancelRewriteRef.current = null;
@@ -223,22 +209,16 @@ export default function Overlay() {
         if (cachedRewrite) {
             setRewrittenText(cachedRewrite);
             cachedTextRef.current = current;
-            setShowRefresh(false);
             return;
         }
         
         if (rewrittenText && current === cachedTextRef.current) return;
-        console.log("input: ", inputTextRef.current);
-        console.log("cache: ", cachedTextRef.current);
-        
-        
         await runRewrite(tone);
     }
     
     function closePopup() {
         cancelRewriteRef.current?.();
         setPopupOpen(false);
-        setShowRefresh(false);
 
         requestAnimationFrame(() => {
             activeBoxRef.current?.focus();
@@ -251,7 +231,6 @@ export default function Overlay() {
 
         pasteText(box, rewrittenText);
         setPopupOpen(false);
-        setShowRefresh(false);
     }
 
     function handleConnectAccount() {
@@ -264,23 +243,11 @@ export default function Overlay() {
 
     async function handleToneChange(newTone: ToneLevel) {
         setTone(newTone);
-        if (showRefresh) {
-            const cachedRewrite = rewriteCacheRef.current.get(
-                getCacheKey(cachedTextRef.current, newTone),
-            );
-            if (cachedRewrite) {
-                setRewrittenText(cachedRewrite);
-            } else {
-                setRewrittenText(null);
-            }
-            return;
-        }
         await runRewrite(newTone);
     }
 
-    async function handleRefresh() {
+    async function handleRegenerate() {
         await runRewrite(tone);
-        setShowRefresh(false);
     }
 
     return (
@@ -301,7 +268,6 @@ export default function Overlay() {
                     regenerateOption="polite"
                     loading={loading}
                     rewrittenText={rewrittenText}
-                    showRefresh={showRefresh}
                     authRequired={authRequired}
                     billingRequired={billingRequired}
                     rateLimitedSecondsRemaining={getRateLimitedSecondsRemaining(
@@ -310,7 +276,7 @@ export default function Overlay() {
                     )}
                     errorMessage={errorMessage}
                     onToneSelect={handleToneChange}
-                    onRefresh={handleRefresh}
+                    onRegenerate={handleRegenerate}
                     onApply={applyRewrite}
                     onConnectAccount={handleConnectAccount}
                     onOpenBilling={handleOpenBilling}

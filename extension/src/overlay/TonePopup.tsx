@@ -1,8 +1,6 @@
-import { useState } from "react";
 import type { RegenerateOption, ToneLevel } from "./Overlay";
 import { theme } from "../constants/colors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons/faArrowsRotate";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 type Props = {
@@ -12,14 +10,13 @@ type Props = {
     regenerateOption: RegenerateOption | null;
     loading: boolean;
     rewrittenText: string | null;
-    showRefresh: boolean;
     authRequired: boolean;
     billingRequired: boolean;
     rateLimitedSecondsRemaining: number | null;
     errorMessage: string | null;
 
     onToneSelect: (tone: ToneLevel) => void;
-    onRefresh: () => void;
+    onRegenerate: () => void;
     onApply: () => void;
     onConnectAccount: () => void;
     onOpenBilling: () => void;
@@ -33,20 +30,17 @@ export default function TonePopup({
     regenerateOption,
     loading,
     rewrittenText,
-    showRefresh,
     authRequired,
     billingRequired,
     rateLimitedSecondsRemaining,
     errorMessage,
     onToneSelect,
-    onRefresh,
+    onRegenerate,
     onApply,
     onConnectAccount,
     onOpenBilling,
     onClose,
 }: Props) {
-    const [hover, setHover] = useState(false);
-
     if (authRequired) {
         return (
             <div
@@ -281,55 +275,12 @@ export default function TonePopup({
                 style={{ 
                     display: "flex",
                     alignItems: "center",
-                    gap: 4,
                     fontWeight: "bold", 
                     color: "#004225" ,
                     fontSize: 24,
                 }}
-                >
-                    Tone
-                <div
-                    style={{
-                        position: "relative",
-                        display: "inline-block"
-                    }}
-                    onMouseEnter={() => setHover(true)}
-                    onMouseLeave={() => setHover(false)}
-                >
-                    <button
-                        onClick={onRefresh}
-                        disabled={!showRefresh}
-                        style={{
-                        padding: "6px 8px",
-                        borderRadius: 10,
-                        border: "none",
-                        background: "#fff",
-                        color: showRefresh ? "black" : "#ddd",
-                        cursor: showRefresh ? "pointer" : "",
-                        fontSize: 13,
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faArrowsRotate} />
-                    </button>
-                    {hover && (<div
-                        style={{
-                            position: "absolute",
-                            bottom: "130%",
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                            background: "black",
-                            color: "white",
-                            padding: "6px 8px",
-                            borderRadius: 8,
-                            fontSize: 12,
-                            whiteSpace: "nowrap",
-                            zIndex: 999999,
-                        }}
-                        className="tooltip"
-                    >
-                        {showRefresh ? "Input changed - click to update rewrite" : "Type something new to enable rewrite"}
-                    </div>)}
-                </div>
+            >
+                Tone
                 <button
                     onClick={onClose}
                     style={closeButtonStyle}
@@ -377,12 +328,12 @@ export default function TonePopup({
                     />
                 </div>
                 <button
-                onClick={onApply}
-                disabled={!rewrittenText || showRefresh || loading}
-                style={secondaryButtonStyle}
-            >
-                Regenerate
-            </button>
+                    onClick={onRegenerate}
+                    disabled={loading}
+                    style={secondaryButtonStyle}
+                >
+                    Regenerate
+                </button>
             </div>
             <div
                 style={{
@@ -400,16 +351,11 @@ export default function TonePopup({
             >
                 {loading && rewrittenText && rewrittenText}
                 {loading && !rewrittenText && "Rewriting..."}
-                {!loading && showRefresh && (
-                    rewrittenText
-                        ? rewrittenText
-                        : "Input changed and no saved rewrite exists for this tone. Click refresh to rewrite current input."
-                )}
-                {!loading && !showRefresh && rewrittenText}
+                {!loading && rewrittenText}
             </div>
             <button
                 onClick={onApply}
-                disabled={!rewrittenText || showRefresh || loading}
+                disabled={!rewrittenText || loading}
                 style={primaryButtonStyle}
             >
                 Apply
@@ -527,7 +473,7 @@ function RegenerateOptionButton({
                 padding: "6px 8px",
                 borderRadius: 10,
                 border: active ? `1px solid ${theme.colors.primary}` : "1px solid #ddd",
-                // background: active ? theme.colors.primary : "#fff",
+                background: "#fff",
                 color: active ? theme.colors.primary : "black",
                 cursor: "pointer",
                 fontSize: 11,

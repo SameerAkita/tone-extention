@@ -15,6 +15,16 @@ const faqs = [
       "Yes. You can switch plans or cancel your subscription at any time from your account settings.",
   },
   {
+    question: "When do I get access after subscribing?",
+    answer:
+      "Access is delivered digitally right away. After signup and payment, you can use Tone through your account and supported browser extension flow.",
+  },
+  {
+    question: "Do you ship anything physical?",
+    answer:
+      "No. Tone is a digital subscription product and no physical goods are shipped.",
+  },
+  {
     question: "What tools can I use it with?",
     answer:
       "Tone is designed to work across modern web tools including email clients, chat apps, and browser-based CRMs.",
