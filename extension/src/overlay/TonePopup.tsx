@@ -9,6 +9,10 @@ type Props = {
     tone: ToneLevel;
     loading: boolean;
     rewrittenText: string | null;
+    canGoBack: boolean;
+    canGoForward: boolean;
+    draftCount: number;
+    currentDraftIndex: number;
     authRequired: boolean;
     billingRequired: boolean;
     rateLimitedSecondsRemaining: number | null;
@@ -16,6 +20,9 @@ type Props = {
 
     onToneSelect: (tone: ToneLevel) => void;
     onRegenerate: () => void;
+    onPreviousDraft: () => void;
+    onNextDraft: () => void;
+    onSelectDraft: (index: number) => void;
     onApply: () => void;
     onConnectAccount: () => void;
     onOpenBilling: () => void;
@@ -28,12 +35,19 @@ export default function TonePopup({
     tone,
     loading,
     rewrittenText,
+    canGoBack,
+    canGoForward,
+    draftCount,
+    currentDraftIndex,
     authRequired,
     billingRequired,
     rateLimitedSecondsRemaining,
     errorMessage,
     onToneSelect,
     onRegenerate,
+    onPreviousDraft,
+    onNextDraft,
+    onSelectDraft,
     onApply,
     onConnectAccount,
     onOpenBilling,
@@ -313,6 +327,30 @@ export default function TonePopup({
             >
                 Regenerate
             </button>
+            <div style={draftNavigationStyle}>
+                <button
+                    onClick={onPreviousDraft}
+                    disabled={!canGoBack || loading}
+                    style={{
+                        ...navButtonStyle,
+                        opacity: !canGoBack || loading ? 0.45 : 1,
+                        cursor: !canGoBack || loading ? "default" : "pointer",
+                    }}
+                >
+                    Back
+                </button>
+                <button
+                    onClick={onNextDraft}
+                    disabled={!canGoForward || loading}
+                    style={{
+                        ...navButtonStyle,
+                        opacity: !canGoForward || loading ? 0.45 : 1,
+                        cursor: !canGoForward || loading ? "default" : "pointer",
+                    }}
+                >
+                    Forward
+                </button>
+            </div>
             <div
                 style={{
                     marginTop: 12,
@@ -331,6 +369,24 @@ export default function TonePopup({
                 {loading && !rewrittenText && "Rewriting..."}
                 {!loading && rewrittenText}
             </div>
+            {draftCount > 1 && (
+                <div style={dotRowStyle}>
+                    {Array.from({ length: draftCount }, (_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => onSelectDraft(index)}
+                            disabled={loading || index === currentDraftIndex}
+                            aria-label={`View draft ${index + 1}`}
+                            style={{
+                                ...dotButtonStyle,
+                                background: index === currentDraftIndex ? theme.colors.primary : "#c9d3ce",
+                                opacity: loading ? 0.6 : 1,
+                                cursor: loading || index === currentDraftIndex ? "default" : "pointer",
+                            }}
+                        />
+                    ))}
+                </div>
+            )}
             <button
                 onClick={onApply}
                 disabled={!rewrittenText || loading}
@@ -386,6 +442,38 @@ const secondaryButtonStyle = {
     background: "white",
     color: theme.colors.primary,
     cursor: "pointer",
+} as const;
+
+const draftNavigationStyle = {
+    marginTop: 12,
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 8,
+} as const;
+
+const navButtonStyle = {
+    flex: 1,
+    padding: "7px 10px",
+    borderRadius: 10,
+    border: "1px solid #ddd",
+    background: "#fff",
+    color: "#2f2f2f",
+    fontSize: 12,
+} as const;
+
+const dotRowStyle = {
+    marginTop: 10,
+    display: "flex",
+    justifyContent: "center",
+    gap: 6,
+} as const;
+
+const dotButtonStyle = {
+    width: 8,
+    height: 8,
+    padding: 0,
+    borderRadius: "50%",
+    border: "none",
 } as const;
 
 const buttonSectionStyle = {

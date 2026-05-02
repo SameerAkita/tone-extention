@@ -22,12 +22,22 @@ export default function Overlay() {
     const activeBoxRef = useRef<HTMLElement | null>(null);
     const inputTextRef = useRef("");
     const cachedTextRef = useRef("");
-    const rewriteCacheRef = useRef<Map<string, string>>(new Map());
+    const rewriteCacheRef = useRef<Map<string, { drafts: string[]; currentIndex: number }>>(new Map());
     const rewriteRequestIdRef = useRef(0);
     const cancelRewriteRef = useRef<(() => void) | null>(null);
 
     function getCacheKey(text: string, toneLevel: ToneLevel) {
         return `${toneLevel}::${text}`;
+    }
+
+    function getCurrentDraft(text: string, toneLevel: ToneLevel) {
+        const entry = rewriteCacheRef.current.get(getCacheKey(text, toneLevel));
+        if (!entry) return null;
+        return entry.drafts[entry.currentIndex] ?? null;
+    }
+
+    function getDraftEntry(text: string, toneLevel: ToneLevel) {
+        return rewriteCacheRef.current.get(getCacheKey(text, toneLevel)) ?? null;
     }
 
     // helper
@@ -126,12 +136,6 @@ export default function Overlay() {
         if (!text) return;
 
         const cacheKey = getCacheKey(text, toneLevel);
-        const cachedRewrite = rewriteCacheRef.current.get(cacheKey);
-        if (cachedRewrite) {
-            setRewrittenText(cachedRewrite);
-            cachedTextRef.current = text;
-            return;
-        }
 
         const requestId = rewriteRequestIdRef.current + 1;
         rewriteRequestIdRef.current = requestId;
@@ -188,7 +192,15 @@ export default function Overlay() {
             }
 
             setRewrittenText(rewrittenText);
-            rewriteCacheRef.current.set(cacheKey, rewrittenText);
+            const existingEntry = rewriteCacheRef.current.get(cacheKey);
+            const nextDrafts = existingEntry
+                ? [...existingEntry.drafts, rewrittenText]
+                : [rewrittenText];
+
+            rewriteCacheRef.current.set(cacheKey, {
+                drafts: nextDrafts,
+                currentIndex: nextDrafts.length - 1,
+            });
             cachedTextRef.current = text;
         } finally {
             if (rewriteRequestIdRef.current === requestId) {
@@ -204,7 +216,7 @@ export default function Overlay() {
         setPopupOpen(true);
         
         const current = inputTextRef.current.trim();
-        const cachedRewrite = rewriteCacheRef.current.get(getCacheKey(current, tone));
+        const cachedRewrite = getCurrentDraft(current, tone);
         if (cachedRewrite) {
             setRewrittenText(cachedRewrite);
             cachedTextRef.current = current;
@@ -242,12 +254,57 @@ export default function Overlay() {
 
     async function handleToneChange(newTone: ToneLevel) {
         setTone(newTone);
+
+        const current = inputTextRef.current.trim();
+        const cachedRewrite = getCurrentDraft(current, newTone);
+        if (cachedRewrite) {
+            setRewrittenText(cachedRewrite);
+            cachedTextRef.current = current;
+            return;
+        }
+
         await runRewrite(newTone);
     }
 
     async function handleRegenerate() {
         await runRewrite(tone);
     }
+
+    function handlePreviousDraft() {
+        const current = inputTextRef.current.trim();
+        const entry = getDraftEntry(current, tone);
+        if (!entry || entry.currentIndex <= 0) return;
+
+        entry.currentIndex -= 1;
+        setRewrittenText(entry.drafts[entry.currentIndex] ?? null);
+        cachedTextRef.current = current;
+    }
+
+    function handleNextDraft() {
+        const current = inputTextRef.current.trim();
+        const entry = getDraftEntry(current, tone);
+        if (!entry || entry.currentIndex >= entry.drafts.length - 1) return;
+
+        entry.currentIndex += 1;
+        setRewrittenText(entry.drafts[entry.currentIndex] ?? null);
+        cachedTextRef.current = current;
+    }
+
+    function handleSelectDraft(index: number) {
+        const current = inputTextRef.current.trim();
+        const entry = getDraftEntry(current, tone);
+        if (!entry || index < 0 || index >= entry.drafts.length) return;
+
+        entry.currentIndex = index;
+        setRewrittenText(entry.drafts[index] ?? null);
+        cachedTextRef.current = current;
+    }
+
+    const currentEntry = getDraftEntry(inputTextRef.current.trim(), tone);
+    const currentDraftIndex = currentEntry?.currentIndex ?? 0;
+    const draftCount = currentEntry?.drafts.length ?? 0;
+    const canGoBack = currentDraftIndex > 0;
+    const canGoForward = currentEntry ? currentDraftIndex < currentEntry.drafts.length - 1 : false;
 
     return (
         <>
@@ -275,6 +332,13 @@ export default function Overlay() {
                     errorMessage={errorMessage}
                     onToneSelect={handleToneChange}
                     onRegenerate={handleRegenerate}
+                    canGoBack={canGoBack}
+                    canGoForward={canGoForward}
+                    draftCount={draftCount}
+                    currentDraftIndex={currentDraftIndex}
+                    onPreviousDraft={handlePreviousDraft}
+                    onNextDraft={handleNextDraft}
+                    onSelectDraft={handleSelectDraft}
                     onApply={applyRewrite}
                     onConnectAccount={handleConnectAccount}
                     onOpenBilling={handleOpenBilling}
