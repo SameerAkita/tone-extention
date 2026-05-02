@@ -2,6 +2,8 @@ import type { ToneLevel } from "./Overlay";
 import { theme } from "../constants/colors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons/faChevronLeft";
+import { faChevronRight } from "@fortawesome/free-solid-svg-icons/faChevronRight";
 
 type Props = {
     x: number;
@@ -320,35 +322,37 @@ export default function TonePopup({
                     />
                 </div>
             </div>
-            <button
-                onClick={onRegenerate}
-                disabled={loading}
-                style={secondaryButtonStyle}
-            >
-                Regenerate
-            </button>
-            <div style={draftNavigationStyle}>
+            <div style={draftControlsRowStyle}>
                 <button
                     onClick={onPreviousDraft}
                     disabled={!canGoBack || loading}
                     style={{
-                        ...navButtonStyle,
+                        ...iconButtonStyle,
                         opacity: !canGoBack || loading ? 0.45 : 1,
                         cursor: !canGoBack || loading ? "default" : "pointer",
                     }}
+                    aria-label="Previous draft"
                 >
-                    Back
+                    <FontAwesomeIcon icon={faChevronLeft} />
+                </button>
+                <button
+                    onClick={onRegenerate}
+                    disabled={loading}
+                    style={secondaryButtonStyle}
+                >
+                    Regenerate
                 </button>
                 <button
                     onClick={onNextDraft}
                     disabled={!canGoForward || loading}
                     style={{
-                        ...navButtonStyle,
+                        ...iconButtonStyle,
                         opacity: !canGoForward || loading ? 0.45 : 1,
                         cursor: !canGoForward || loading ? "default" : "pointer",
                     }}
+                    aria-label="Next draft"
                 >
-                    Forward
+                    <FontAwesomeIcon icon={faChevronRight} />
                 </button>
             </div>
             <div
@@ -434,8 +438,7 @@ const primaryButtonStyle = {
 } as const;
 
 const secondaryButtonStyle = {
-    marginTop: 12,
-    width: "100%",
+    flex: 1,
     padding: 10,
     borderRadius: 10,
     border: `1px solid ${theme.colors.primary}`,
@@ -444,16 +447,16 @@ const secondaryButtonStyle = {
     cursor: "pointer",
 } as const;
 
-const draftNavigationStyle = {
+const draftControlsRowStyle = {
     marginTop: 12,
     display: "flex",
-    justifyContent: "space-between",
     gap: 8,
 } as const;
 
-const navButtonStyle = {
-    flex: 1,
-    padding: "7px 10px",
+const iconButtonStyle = {
+    width: 38,
+    height: 38,
+    padding: 0,
     borderRadius: 10,
     border: "1px solid #ddd",
     background: "#fff",
@@ -469,8 +472,8 @@ const dotRowStyle = {
 } as const;
 
 const dotButtonStyle = {
-    width: 8,
-    height: 8,
+    width: 6,
+    height: 6,
     padding: 0,
     borderRadius: "50%",
     border: "none",
