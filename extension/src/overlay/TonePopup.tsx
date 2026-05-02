@@ -373,13 +373,13 @@ export default function TonePopup({
                 {loading && !rewrittenText && "Rewriting..."}
                 {!loading && rewrittenText}
             </div>
-            {draftCount > 1 && (
+            {(draftCount > 0 || loading) && (
                 <div style={dotRowStyle}>
-                    {Array.from({ length: draftCount }, (_, index) => (
+                    {Array.from({ length: Math.max(draftCount, 1) }, (_, index) => (
                         <button
                             key={index}
                             onClick={() => onSelectDraft(index)}
-                            disabled={loading || index === currentDraftIndex}
+                            disabled={loading || draftCount <= 1 || index === currentDraftIndex}
                             aria-label={`View draft ${index + 1}`}
                             style={{
                                 ...dotButtonStyle,
