@@ -284,6 +284,7 @@ export default function TonePopup({
         <div
             data-tone-popup="true"
             style={popupStyle(x, y)}
+            onMouseDown={(e) => e.preventDefault()}
         >
             <div 
                 style={{ 
@@ -367,6 +368,7 @@ export default function TonePopup({
                     overflowY: "auto",
                     whiteSpace: "pre-wrap",
                     wordBreak: "break-word",
+                    color: "black",
                 }}
             >
                 {loading && rewrittenText && rewrittenText}
