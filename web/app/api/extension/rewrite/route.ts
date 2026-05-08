@@ -23,6 +23,12 @@ type ProfileAccessRecord = {
     stripe_subscription_status: string | null;
 };
 
+const recipientByTone = {
+    casual: "coworker",
+    business: "boss",
+    formal: "client",
+} as const;
+
 function fromBase64Url(input: string) {
     const pad = "=".repeat((4 - (input.length % 4)) % 4);
     const base64 = input.replace(/-/g, "+").replace(/_/g, "/") + pad;
@@ -176,7 +182,10 @@ export async function POST(req: Request) {
             trimmedText.length > MAX_INPUT_CHARS
                 ? trimmedText.slice(0, MAX_INPUT_CHARS)
                 : trimmedText;
-        const safeTone = tone ?? "business";
+        const safeTone = tone === "casual" || tone === "business" || tone === "formal"
+            ? tone
+            : "business";
+        const recipient = recipientByTone[safeTone];
 
         const encoder = new TextEncoder();
         let streamedText = "";
@@ -188,14 +197,23 @@ export async function POST(req: Request) {
                     const response = await client.responses.create({
                         model: "gpt-5-nano",
                         stream: true,
+                        reasoning: {
+                            effort: "minimal",
+                        },
+                        text: {
+                            verbosity: "low",
+                        },
+                        max_output_tokens: 180,
                         input: [
                             {
                                 role: "system",
-                                content: `Rewrite text in business Japanese in a ${safeTone} tone. Return only the rewritten text.`,
+                                content: `Rewrite this Japanese workplace message for the intended recipient. Preserve the original meaning, keep it natural. Do not add new information. Return only the rewritten text in Japanese.`,
                             },
                             {
                                 role: "user",
-                                content: `Tone: ${safeTone}\n\nText:\n${boundedText}`,
+                                content: `You are writing to a ${recipient}.
+                                Text:
+                                ${boundedText}`,
                             }
                         ]
                     });
@@ -222,6 +240,7 @@ export async function POST(req: Request) {
                                 inputTokens: event.response.usage?.input_tokens,
                                 outputTokens: event.response.usage?.output_tokens,
                                 totalTokens: event.response.usage?.total_tokens,
+                                fullJson: event.response.usage,
                             });
                         }
                     }
