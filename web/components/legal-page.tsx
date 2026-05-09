@@ -26,7 +26,7 @@ export function LegalPage({ title, description, children }: LegalPageProps) {
               <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
                 {description}
               </p>
-              <div className="prose prose-neutral mt-8 max-w-none text-sm leading-7 text-foreground prose-headings:font-semibold prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground dark:prose-invert">
+              <div className="prose prose-neutral mt-8 max-w-none text-sm leading-7 text-foreground [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:leading-tight [&_h2]:text-primary [&_h3]:mt-6 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:leading-tight [&_h3]:text-primary [&_p]:text-foreground [&_ul]:list-disc [&_ul]:pl-6 [&_li]:text-foreground [&_li::marker]:text-primary [&_strong]:text-foreground dark:prose-invert">
                 {children}
               </div>
             </section>
